@@ -18,8 +18,12 @@ var Scene = function(gl, output) {
 
 };
 
-Scene.prototype.startAnimation = function() {
-  this.isAnimating = true;
+Scene.prototype.toggleAnimation = function() {
+  this.isAnimating = !this.isAnimating;
+};
+
+Scene.prototype.resetPosition = function() {
+  this.trianglePosition = {x:0, y:0, z:0};
 };
 
 Scene.prototype.update = function(gl) {

@@ -26,10 +26,16 @@ var App = function(canvas) {
   var scene = this.scene;
 
   document.onkeypress = function(event) {
-    if (event.key === 's') {
-      scene.startAnimation();
-    } else {
-      alert("Press s to start the animation");
+    switch(event.key) {
+      case 's':
+        scene.toggleAnimation();
+        break;
+      case 'r':
+        scene.resetPosition();
+        break;
+      default:
+        alert("Press s to toggle the animation\nPress r to reset to triangle's position");
+        break;
     }
   };
 
