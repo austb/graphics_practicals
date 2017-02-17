@@ -15,6 +15,10 @@ var Program = function(gl, vertexShader, fragmentShader) {
   }
 };
 
+Program.prototype.getUniform = function(name, type) {
+  return new Uniform(this, name, type);
+}
+
 Program.prototype.commit = function(){
   this.gl.useProgram(this.glProgram);
 };

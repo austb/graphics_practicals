@@ -13,6 +13,9 @@ var Scene = function(gl, output) {
 
   // The shape
   this.quadGeometry = new QuadGeometry(gl);
+
+  this.positionUniform = this.program.getUniform("trianglePosition", "vec3");
+
 };
 
 Scene.prototype.startAnimation = function() {
@@ -28,15 +31,9 @@ Scene.prototype.update = function(gl) {
   // set shader program to use
   this.program.commit();
 
-  // Bind translation uniform
-  var trianglePositionLocation =
-       gl.getUniformLocation(this.program.glProgram, "trianglePosition");
-  if(trianglePositionLocation < 0)
-    console.log("Could not find uniform trianglePosition.");
-  else
-    gl.uniform3f(trianglePositionLocation,
-        this.trianglePosition.x, this.trianglePosition.y,
-        this.trianglePosition.z);
+  this.positionUniform.update(this.trianglePosition.x,
+      this.trianglePosition.y,
+      this.trianglePosition.z);
 
   this.quadGeometry.draw();
 
