@@ -33,7 +33,7 @@ Scene.prototype.update = function(gl) {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // set shader program to use
-  this.program.commit();
+  this.program.use();
 
   this.positionUniform.update(this.trianglePosition.x,
       this.trianglePosition.y,
