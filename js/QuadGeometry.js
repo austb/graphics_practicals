@@ -72,8 +72,8 @@ QuadGeometry.prototype.draw = function() {
     false, //< do not normalize (make unit length)
     0, //< tightly packed
     0 //< data starts at array start
-  ); 
+  );
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-} 
+}
