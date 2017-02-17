@@ -1,0 +1,23 @@
+shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
+	attribute vec3 vertexPosition;
+  attribute vec3 vertexColor;
+
+  uniform vec3 trianglePosition;
+  uniform vec2 triangleRotation;
+
+  varying lowp vec4 vColor;
+
+	void main(void) {
+    // translation
+    // vec3 position = vertexPosition + trianglePosition;
+    
+    // rotation
+    vec3 position = vec3 (vertexPosition.x * triangleRotation.x - vertexPosition.y * triangleRotation.y,
+         vertexPosition.x * triangleRotation.y + vertexPosition.y * triangleRotation.x,
+         vertexPosition.z);
+
+		gl_Position = vec4(position, 1);
+    vColor = vec4(vertexColor, 1);
+	}
+
+`;
