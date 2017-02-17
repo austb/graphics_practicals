@@ -10,7 +10,7 @@ var App = function(canvas) {
 
 	// if no GL support, cry
 	this.gl = canvas.getContext("experimental-webgl");
-	if (this.gl == null) {
+	if (this.gl === null) {
 		alert( ">>> Browser does not support WebGL <<<" );
 		return;
 	}
@@ -22,7 +22,18 @@ var App = function(canvas) {
 
 	// create a simple scene
 	this.scene = new Scene(this.gl);
-}
+
+  var scene = this.scene;
+
+  document.onkeypress = function(event) {
+    if (event.key === 's') {
+      scene.startAnimation();
+    } else {
+      alert("Press s to start the animation");
+    }
+  };
+
+};
 
 // animation frame update
 App.prototype.update = function() {
@@ -40,7 +51,7 @@ App.prototype.update = function() {
 	window.requestAnimationFrame(function() {
 		app.update();
 	});
-}
+};
 
 // entry point from HTML
 window.addEventListener('load', function() {

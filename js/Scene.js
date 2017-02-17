@@ -1,5 +1,6 @@
 var Scene = function(gl, output) {
 
+  this.isAnimating = false;
   this.triangleRotation = 0;
   this.trianglePosition = {x:0, y:0, z:0};
   this.timeAtLastFrame = new Date().getTime();
@@ -12,7 +13,11 @@ var Scene = function(gl, output) {
 
   // The shape
   this.quadGeometry = new QuadGeometry(gl);
-}
+};
+
+Scene.prototype.startAnimation = function() {
+  this.isAnimating = true;
+};
 
 Scene.prototype.update = function(gl) {
   // set clear color (part of the OpenGL render state)
@@ -22,6 +27,17 @@ Scene.prototype.update = function(gl) {
 
   // set shader program to use
   this.program.commit();
+
+  // Bind translation uniform
+  var trianglePositionLocation =
+       gl.getUniformLocation(this.program.glProgram, "trianglePosition");
+  if(trianglePositionLocation < 0)
+    console.log("Could not find uniform trianglePosition.");
+  else
+    gl.uniform3f(trianglePositionLocation,
+        this.trianglePosition.x, this.trianglePosition.y,
+        this.trianglePosition.z);
+
   this.quadGeometry.draw();
 
   // dt
@@ -30,8 +46,10 @@ Scene.prototype.update = function(gl) {
   this.timeAtLastFrame = timeAtThisFrame;
     
   // triangle translation
-  this.trianglePosition.x += 0.5 * dt;
+  if(this.isAnimating) {
+    this.trianglePosition.x += 0.5 * dt;
+  }
 
   // triangle rotation
-  this.triangleRotation += 0.3 * dt;
-}
+  // this.triangleRotation += 0.3 * dt;
+};
