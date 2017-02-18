@@ -28,13 +28,16 @@ var App = function(canvas) {
   document.onkeypress = function(event) {
     switch(event.key) {
       case 's':
-        scene.toggleAnimation();
+        scene.toggleTranslation();
         break;
       case 'r':
-        scene.resetPosition();
+        scene.resetScene();
+        break;
+      case 'c':
+        scene.toggleRotation();
         break;
       default:
-        alert("Press s to toggle the animation\nPress r to reset to triangle's position");
+        alert("Press s to toggle the animation\nPress c to toggle the rotation\nPress r to reset to triangle's position");
         break;
     }
   };

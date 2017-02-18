@@ -1,6 +1,7 @@
 var Scene = function(gl, output) {
 
-  this.isAnimating = false;
+  this.isMoving = false;
+  this.isSpinning = false;
   this.triangleRotation = 0;
   this.trianglePosition = {x:0, y:0, z:0};
   this.timeAtLastFrame = new Date().getTime();
@@ -15,15 +16,21 @@ var Scene = function(gl, output) {
   this.quadGeometry = new QuadGeometry(gl);
 
   this.positionUniform = this.program.getUniform("trianglePosition", "vec3");
+  this.rotationUniform = this.program.getUniform("triangleRotation", "vec2");
 
 };
 
-Scene.prototype.toggleAnimation = function() {
-  this.isAnimating = !this.isAnimating;
+Scene.prototype.toggleTranslation = function() {
+  this.isMoving = !this.isMoving;
 };
 
-Scene.prototype.resetPosition = function() {
+Scene.prototype.toggleRotation = function() {
+  this.isSpinning = !this.isSpinning;
+};
+
+Scene.prototype.resetScene = function() {
   this.trianglePosition = {x:0, y:0, z:0};
+  this.triangleRotation = 0;
 };
 
 Scene.prototype.update = function(gl) {
@@ -39,6 +46,9 @@ Scene.prototype.update = function(gl) {
       this.trianglePosition.y,
       this.trianglePosition.z);
 
+  this.rotationUniform.update(Math.cos(this.triangleRotation),
+      Math.sin(this.triangleRotation));
+
   this.quadGeometry.draw();
 
   // dt
@@ -47,10 +57,12 @@ Scene.prototype.update = function(gl) {
   this.timeAtLastFrame = timeAtThisFrame;
     
   // triangle translation
-  if(this.isAnimating) {
+  if(this.isMoving) {
     this.trianglePosition.x += 0.5 * dt;
   }
 
   // triangle rotation
-  // this.triangleRotation += 0.3 * dt;
+  if(this.isSpinning) {
+    this.triangleRotation += 0.3 * dt;
+  }
 };

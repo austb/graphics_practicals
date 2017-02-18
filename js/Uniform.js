@@ -1,4 +1,5 @@
 var typeMap = {
+  "vec2": "uniform2f",
   "vec3": "uniform3f"
 };
 
