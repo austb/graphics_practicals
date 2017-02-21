@@ -1,5 +1,7 @@
 var Scene = function(gl, output) {
 
+  this.gl = gl;
+
   this.isMoving = false;
   this.isSpinning = false;
   this.triangleRotation = 0;
@@ -10,13 +12,23 @@ var Scene = function(gl, output) {
   this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "blue_fs.essl");
 
   // shader program
-  this.program = new Program(gl, this.vertexShader, this.fragmentShader);
-
+  var triangleAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
+  this.program = new Program(gl, this.vertexShader, this.fragmentShader, triangleAttribs);
   // The shape
   this.quadGeometry = new QuadGeometry(gl);
 
   this.positionUniform = this.program.getUniform("trianglePosition", "vec3");
   this.rotationUniform = this.program.getUniform("triangleRotation", "vec2");
+
+  this.circleVertexShader = new Shader(gl, gl.VERTEX_SHADER, "circle_vs.essl");
+  this.circleFragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "circle_fs.essl");
+
+  var circleAttribs = ['a_position', 'a_center', 'a_radius'];
+  this.circleProgram = new Program(gl, this.circleVertexShader, this.circleFragmentShader, circleAttribs);
+
+  this.resolutionUniform = this.circleProgram.getUniform("u_resolution", "vec2");
+
+  this.circle = new Circle(gl, {x: 400.0, y: 200.0, r: 100.0});
 
 };
 
@@ -50,6 +62,12 @@ Scene.prototype.update = function(gl) {
       Math.sin(this.triangleRotation));
 
   this.quadGeometry.draw();
+
+
+
+  this.circleProgram.use();
+  this.resolutionUniform.update(this.gl.canvas.width, this.gl.canvas.height);
+  this.circle.draw();
 
   // dt
   var timeAtThisFrame = new Date().getTime();
