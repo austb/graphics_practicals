@@ -2,8 +2,9 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   precision highp float;
 
   varying vec2 vColor;
+  varying vec2 resolution;
 
   void main(void) {
-    gl_FragColor = vec4(vColor, 0, 1);
+    gl_FragColor = vec4(vColor, 0.0, 1.0);
   }
 `;
