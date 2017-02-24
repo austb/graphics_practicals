@@ -15,27 +15,16 @@ var Scene = function(gl, output) {
   var triangleAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
   this.program = new Program(gl, this.vertexShader, this.fragmentShader, triangleAttribs);
   // The shape
-  var triangleVertices = [
-    {x: 400, y: 300},
-    {x: 800, y: 300},
-    {x: 600, y: 500},
-  ];
+
+  var triangleVertices = new Vec3Array(3);
+  triangleVertices[0].set(new Vec3(-0.5, 0.5, 0.0));
+  triangleVertices[1].set(new Vec3(0.5, 0.5, 0.0));
+  triangleVertices[2].set(new Vec3(0.0, -0.5, 0.0));
 
   this.quadGeometry = new QuadGeometry(gl, triangleVertices);
 
-  this.positionUniform = this.program.getUniform("trianglePosition", "vec3");
-  this.rotationUniform = this.program.getUniform("triangleRotation", "vec2");
-  this.triResolutionUniform = this.program.getUniform("u_resolution", "vec2");
-
-  this.circleVertexShader = new Shader(gl, gl.VERTEX_SHADER, "circle_vs.essl");
-  this.circleFragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "circle_fs.essl");
-
-  var circleAttribs = ['a_position', 'a_center', 'a_radius'];
-  this.circleProgram = new Program(gl, this.circleVertexShader, this.circleFragmentShader, circleAttribs);
-
-  this.resolutionUniform = this.circleProgram.getUniform("u_resolution", "vec2");
-
-  this.circle = new Circle(gl, {x: 400.0, y: 200.0, r: 100.0});
+  this.modelMatrixUniformLocation = gl.getUniformLocation(
+    this.program.glProgram, "modelMatrix");
 
 };
 
@@ -65,21 +54,14 @@ Scene.prototype.update = function(gl) {
   // set shader program to use
   this.program.use();
 
-  this.positionUniform.update(this.trianglePosition.x,
-      this.trianglePosition.y,
-      this.trianglePosition.z);
-
-  this.rotationUniform.update(Math.cos(this.triangleRotation),
-      Math.sin(this.triangleRotation));
-
-  this.triResolutionUniform.update(this.gl.canvas.width, this.gl.canvas.height);
+  if(this.modelMatrixUniformLocation === null) {
+    console.log("Could not find uniform modelMatrix.");
+  } else {
+    var modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition);
+    modelMatrix.commit(gl, this.modelMatrixUniformLocation);
+  }
 
   this.quadGeometry.draw();
-
-
-  this.circleProgram.use();
-  this.resolutionUniform.update(this.gl.canvas.width, this.gl.canvas.height);
-  this.circle.draw();
 
   // dt
   var timeAtThisFrame = new Date().getTime();
@@ -88,7 +70,7 @@ Scene.prototype.update = function(gl) {
     
   // triangle translation
   if(this.isMoving) {
-    this.trianglePosition.x += 50 * dt;
+    this.trianglePosition.x += 0.5 * dt;
   }
 
   // triangle rotation
