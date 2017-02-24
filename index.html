@@ -1,31 +1,51 @@
 <!DOCTYPE html>
-<html>	
+<html>
 <head>
-	<title>AIT Computer Graphics: Initial Framework</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="css/style.css" />
+  <title>AIT Computer Graphics: Initial Framework</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
 
-	<div class="container">
-	  <canvas id="canvas"></canvas>
-	  <div id="overlay">
-	  </div>
-	</div>
-	<script src="js/keycodes.js"></script>
-	<script src="js/shaders/shaderSource.js"></script>
-	<script src="js/shaders/idle_vs.essl"></script>
-	<script src="js/shaders/blue_fs.essl"></script>
-	<script src="js/shaders/circle_vs.essl"></script>
-	<script src="js/shaders/circle_fs.essl"></script>
-	<script src="js/Uniform.js"></script>
-	<script src="js/Shader.js"></script>
-	<script src="js/Program.js"></script>
-	<script src="js/QuadGeometry.js"></script>
-	<script src="js/Circle.js"></script>
-	<script src="js/Scene.js"></script>
-	<script src="js/App.js"></script>
-	
+  <div class="container">
+    <canvas id="canvas"></canvas>
+    <div id="overlay">
+    </div>
+  </div>
+
+
+  <script src="js/math/Mat4.js"></script>
+  <script src="js/math/Mat4Array.js"></script>
+  <script src="js/math/Vec1.js"></script>
+  <script src="js/math/Vec2.js"></script>
+  <script src="js/math/Vec3.js"></script>
+  <script src="js/math/Vec4.js"></script>
+  <script src="js/math/VecArray.js"></script>
+  <script src="js/math/Vec1Array.js"></script>
+  <script src="js/math/Vec2Array.js"></script>
+  <script src="js/math/Vec3Array.js"></script>
+  <script src="js/math/Vec4Array.js"></script>
+  <script src="js/math/SamplerCube.js"></script>
+  <script src="js/math/SamplerCubeArray.js"></script>
+  <script src="js/math/Sampler2D.js"></script>
+  <script src="js/math/Sampler2DArray.js"></script>
+  <script src="js/math/UniformReflectionFactories.js"></script>
+  <!-- <script src="js/math/test.js"></script> -->
+  <!-- <script src="js/math/tests.js"></script> -->
+
+  <script src="js/keycodes.js"></script>
+  <script src="js/shaders/shaderSource.js"></script>
+  <script src="js/shaders/idle_vs.essl"></script>
+  <script src="js/shaders/blue_fs.essl"></script>
+  <script src="js/shaders/circle_vs.essl"></script>
+  <script src="js/shaders/circle_fs.essl"></script>
+  <script src="js/Uniform.js"></script>
+  <script src="js/Shader.js"></script>
+  <script src="js/Program.js"></script>
+  <script src="js/QuadGeometry.js"></script>
+  <script src="js/Circle.js"></script>
+  <script src="js/Scene.js"></script>
+  <script src="js/App.js"></script>
 </body>
 </html>
