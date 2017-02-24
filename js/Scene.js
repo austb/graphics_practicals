@@ -48,17 +48,23 @@ Scene.prototype.update = function(gl) {
   // clear the screen
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  gl.enable(gl.BLEND);
-  gl.disable(gl.DEPTH_TEST);
-
   // set shader program to use
   this.program.use();
+
+  var modelMatrix;
+  if(this.modelMatrixUniformLocation === null) {
+    console.log("Could not find uniform modelMatrix.");
+  } else {
+    modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition).scale(0.25);
+    modelMatrix.commit(gl, this.modelMatrixUniformLocation);
+  }
+
+  this.quadGeometry.draw();
 
   if(this.modelMatrixUniformLocation === null) {
     console.log("Could not find uniform modelMatrix.");
   } else {
-    var modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition).scale(0.5);
+    modelMatrix = new Mat4().rotate(-1 * this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25);
     modelMatrix.commit(gl, this.modelMatrixUniformLocation);
   }
 
