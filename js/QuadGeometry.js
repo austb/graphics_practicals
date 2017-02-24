@@ -15,6 +15,7 @@ var QuadGeometry = function(gl, vertices) {
        0, 0, 1,
        0, 0, 1,
        0, 0, 1,
+       0, 0, 1,
     ]),
     gl.STATIC_DRAW);
 
@@ -24,7 +25,8 @@ var QuadGeometry = function(gl, vertices) {
     new Float32Array([
       0, 1,
       1, 0,
-      1, 1
+      1, 1,
+      1, 0
     ]),
     gl.STATIC_DRAW);
 
@@ -33,6 +35,7 @@ var QuadGeometry = function(gl, vertices) {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
     new Uint16Array([
       0, 1, 2,
+      1, 2, 3,
     ]),
     gl.STATIC_DRAW);
 }; // QuadGeometry constructor ends here
@@ -68,5 +71,5 @@ QuadGeometry.prototype.draw = function() {
   );
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-  gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 };

@@ -16,10 +16,11 @@ var Scene = function(gl, output) {
   this.program = new Program(gl, this.vertexShader, this.fragmentShader, triangleAttribs);
   // The shape
 
-  var triangleVertices = new Vec3Array(3);
-  triangleVertices[0].set(new Vec3(-0.5, 0.5, 0.0));
-  triangleVertices[1].set(new Vec3(0.5, 0.5, 0.0));
-  triangleVertices[2].set(new Vec3(0.0, -0.5, 0.0));
+  var triangleVertices = new Vec3Array(4);
+  triangleVertices[0].set(new Vec3(1, 1, 0.0));
+  triangleVertices[1].set(new Vec3(1, -1, 0.0));
+  triangleVertices[2].set(new Vec3(-1, 1, 0.0));
+  triangleVertices[3].set(new Vec3(-1, -1, 0.0));
 
   this.quadGeometry = new QuadGeometry(gl, triangleVertices);
 
@@ -57,7 +58,7 @@ Scene.prototype.update = function(gl) {
   if(this.modelMatrixUniformLocation === null) {
     console.log("Could not find uniform modelMatrix.");
   } else {
-    var modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition);
+    var modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition).scale(0.5);
     modelMatrix.commit(gl, this.modelMatrixUniformLocation);
   }
 
