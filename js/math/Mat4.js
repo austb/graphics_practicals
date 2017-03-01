@@ -24,7 +24,7 @@ var Mat4 = function(m){
 
 /**
  * @method clone
- * @memberof Mat.prototype 
+ * @memberof Mat.prototype
  * @description Creates a copy.
  * @return {Mat4} A new instance with identical contents.
  */
@@ -36,7 +36,7 @@ Mat4.prototype.clone = function() {
 
 /**
  * @method set
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Sets the matrix elements from another matrix or array, given in row-major format. Without parameters, sets the indentity matrix.
  * @param {Mat4 | Array} m - Matrix to copy elements from, or array of elements in row-major format. @default identity
  * @return {Mat4} this
@@ -62,20 +62,20 @@ Mat4.prototype.set = function(m) {
 };
 
 (function() {
-  [0, 1, 2, 3].forEach( function(i){ 
+  [0, 1, 2, 3].forEach( function(i){
     [0, 1, 2, 3].forEach( function(j){
       var columnMajorIndex = j + 4*i;
       Object.defineProperty(Mat4.prototype, i + 4*j, {
         get: function() { return this.storage[columnMajorIndex]; },
         set: function(value) { this.storage[columnMajorIndex] = value; }
       });
-    });      
+    });
   });
 })();
 
 /**
  * @method premul
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Multiplies the matrix with another matrix from the left, overwriting this matrix with the result.
  * @param {Mat4} m - Matrix to multiply with.
  * @return {Mat4} this
@@ -134,7 +134,7 @@ Mat4.prototype.premul = function(m) {
 
 /**
  * @method mul
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Multiplies the matrix with another matrix from the right, overwriting this matrix with the result.
  * @param {Mat4} m - Matrix to multiply with.
  * @return {Mat4} this
@@ -193,7 +193,7 @@ Mat4.prototype.mul = function(m) {
 
 /**
  * @method scale
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Multiplies the matrix with a scaling transformation matrix from the right, overwriting this matrix with the result.
  * @param {Vec3 | Object | Number} [u=1] - Any object (properties x, y, z are interpreted as scaling factors along the respective axes, if given), or a numerical value for scaling factor along x.
  * @param {Number} [v=1] - Ignored if u.y is defined. Otherwise, the value for the scaling factor along y. Defaults to the value of parameter u, if it is a number.
@@ -216,12 +216,12 @@ Mat4.prototype.scale = function(u, v, s) {
   this.storage[ 9] *= sz;
   this.storage[10] *= sz;
   this.storage[11] *= sz;
-  return this;  
+  return this;
 };
 
 /**
  * @method rotate
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Multiplies the matrix with a scaling transformation matrix from the right, overwriting this matrix with the result. Rotates around z if no axis is given.
  * @param {Number} angle - Rotation angle in radians. A right-handed coordinate system is assumed, meaning positive rotation around axis z rotates counterclockwise in the plane where x points right and y points up.
  * @param {Vec3 | Object | Number} [u=0] - Any object (properties x, y, z are interpreted as rotation axis elements, if given), or a numerical value for rotation axis element x.
@@ -287,12 +287,12 @@ Mat4.prototype.rotate = function(angle, u, v, s) {
   this.storage[ 3] = t3 ;
   this.storage[ 7] = t7 ;
   this.storage[11] = t11;
-  return this;  
+  return this;
 };
 
 /**
  * @method translate
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Multiplies the matrix with a transation transformation matrix from the right, overwriting this matrix with the result.
  * @param {Vec3 | Object | Number} [u=0] - Any object (properties x, y, z are interpreted as trnalstion vector elmeents, if given), or a numerical value for translation along x.
  * @param {Number} [v=0] - Ignored if u.y is defined. Otherwise, the value for translation along y. Defaults to the value of parameter u, if it is a number.
@@ -311,16 +311,16 @@ Mat4.prototype.translate = function(u, v, s) {
   this.storage[ 9] += this.storage[13] * z;
   this.storage[ 2] += this.storage[14] * x;
   this.storage[ 6] += this.storage[14] * y;
-  this.storage[10] += this.storage[14] * z;  
+  this.storage[10] += this.storage[14] * z;
   this.storage[ 3] += this.storage[15] * x;
   this.storage[ 7] += this.storage[15] * y;
   this.storage[11] += this.storage[15] * z;
-  return this;      
+  return this;
 };
 
 /**
  * @method transpose
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Transposes the matrix in place, overwriting this matrix with the result.
  * @return {Mat4} this
  */
@@ -344,12 +344,12 @@ Mat4.prototype.transpose = function() {
   temp = this.storage[14];
   this.storage[14] = this.storage[11];
   this.storage[11] = temp;
-  return this;  
+  return this;
 };
 
 /**
  * @method invert
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Inverts the matrix in place, overwriting this matrix with the result.
  * @return {Mat4} this
  */
@@ -409,7 +409,7 @@ Mat4.prototype.invert = function() {
 
 /**
  * @method commit
- * @memberof Mat4.prototype  
+ * @memberof Mat4.prototype
  * @description Sets the value of the matrix to a WebGL mat4 uniform variable.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program

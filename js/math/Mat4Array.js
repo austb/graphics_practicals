@@ -22,7 +22,7 @@ var Mat4Array = function(size){
 
 /**
  * @method subarray
- * @memberof Mat4Array.prototype  
+ * @memberof Mat4Array.prototype
  * @description Returns a new Mat4Array object that captures a subrange of the array. The new array is a view on the original data, not a copy.
  * @param {Number} [begin=0] - Element to begin at. The offset is inclusive. The whole array will be cloned if this value is not specified.
  * @param {Number} [end=length] - Element to end at. The offset is exclusive. If not specified, all elements from the one specified by begin to the end of the array are included in the new view.
@@ -36,7 +36,7 @@ Mat4Array.prototype.subarray = function(begin, end){
 
 /**
  * @method commit
- * @memberof Mat4Array.prototype  
+ * @memberof Mat4Array.prototype
  * @description Sets the value of the matrix array to a WebGL mat4 array uniform variable.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program
