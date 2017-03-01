@@ -55,7 +55,7 @@ Scene.prototype.update = function(gl) {
   if(this.modelMatrixUniformLocation === null) {
     console.log("Could not find uniform modelMatrix.");
   } else {
-    modelMatrix = new Mat4().rotate(this.triangleRotation).translate(this.trianglePosition).scale(0.25);
+    modelMatrix = new Mat4().rotate(-1 * this.triangleRotation).translate(this.trianglePosition).scale(0.25);
     modelMatrix.commit(gl, this.modelMatrixUniformLocation);
   }
 
@@ -64,7 +64,7 @@ Scene.prototype.update = function(gl) {
   if(this.modelMatrixUniformLocation === null) {
     console.log("Could not find uniform modelMatrix.");
   } else {
-    modelMatrix = new Mat4().rotate(-1 * this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25);
+    modelMatrix = new Mat4().rotate(this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25);
     modelMatrix.commit(gl, this.modelMatrixUniformLocation);
   }
 
@@ -74,7 +74,7 @@ Scene.prototype.update = function(gl) {
   var timeAtThisFrame = new Date().getTime();
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
-    
+
   // triangle translation
   if(this.isMoving) {
     this.trianglePosition.x += 0.5 * dt;
