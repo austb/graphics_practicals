@@ -22,7 +22,7 @@
  * @param {Object | WebGLTexture} texture - A WebGL texture, or any object with the `glTexture` property that stores a WebGL texture.
  */
 Sampler2D.prototype.set = function(texture){
-  this.glTexture = texture && texture.glTexture || texture || null;
+  this.glTexture = texture.glTexture || texture || null;
 };
 
 /**

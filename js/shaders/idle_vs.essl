@@ -4,14 +4,14 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   attribute vec2 vertexTexCoord;
 
   uniform mat4 modelMatrix;
-
-  varying vec2 vColor;
+  varying vec2 texCoord;
 
   void main(void) {
     vec4 homogenous_pos = vec4(vertexPosition, 1.0);
     gl_Position = homogenous_pos * modelMatrix;
 
-    vColor = vertexTexCoord;
+    texCoord = vertexTexCoord;
+
   }
 
 `;
