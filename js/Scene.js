@@ -1,14 +1,3 @@
-function handleTextureLoaded(scene, image, texture) {
-  var gl = scene.gl;
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-  gl.generateMipmap(gl.TEXTURE_2D);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  scene.textureLoaded = true;
-}
-
 var ANIM_RATE=0.10;
 
 var Scene = function(gl, output) {
@@ -41,12 +30,7 @@ var Scene = function(gl, output) {
 
   this.modelMatrixUniformLocation = gl.getUniformLocation(this.program.glProgram, "modelMatrix");
 
-  this.textureLoaded = false;
-  var self = this;
-  this.dragonTexture = gl.createTexture();
-  this.dragonImage = new Image();
-  this.dragonImage.onload = function() { handleTextureLoaded(self, self.dragonImage, self.dragonTexture); };
-  this.dragonImage.src = 'img/dragon_red.png';
+  this.dragonTexture = new Texture2D(gl, 'img/dragon_red.png');
 
   this.sampler = new Sampler2D(0);
   this.sampler.set(this.dragonTexture);
@@ -79,7 +63,7 @@ Scene.prototype.update = function(gl) {
     gl.SRC_ALPHA,
     gl.ONE_MINUS_SRC_ALPHA);
 
-  if(this.textureLoaded) {
+  if(Object.keys(gl.pendingResources).length === 0) {
     // set shader program to use
     this.program.use();
 
@@ -145,7 +129,6 @@ Scene.prototype.update = function(gl) {
       this.spriteOffset.x += 1;
       this.spriteOffset.x %= 8;
       this.timeSinceLastSpriteChange = 0;
-      console.log(this.spriteOffset);
     }
 
     // triangle translation
