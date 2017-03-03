@@ -1,6 +1,5 @@
 var app;
 var overlay;
-var pendingResources = {};
 
 // App constructor
 var App = function(canvas) {
@@ -14,6 +13,8 @@ var App = function(canvas) {
     alert( ">>> Browser does not support WebGL <<<" );
     return;
   }
+
+  this.gl.pendingResources = {};
 
   // set the initial canvas size and viewport
   this.canvas.width = this.canvas.clientWidth;
@@ -47,7 +48,7 @@ var App = function(canvas) {
 // animation frame update
 App.prototype.update = function() {
 
-  var pendingResourceNames = Object.keys(pendingResources);
+  var pendingResourceNames = Object.keys(this.gl.pendingResources);
   if(pendingResourceNames.length === 0) {
     // animate and draw scene
     this.scene.update(this.gl);

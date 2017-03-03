@@ -19,6 +19,10 @@ var Scene = function(gl, output) {
   var triangleAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
   this.program = new Program(gl, this.vertexShader, this.fragmentShader, triangleAttribs);
 
+  this.material = new Material(gl, this.program);
+  this.material.colorTexture.set(
+    new Texture2D(gl, 'img/dragon_red.png'));
+
   var triangleVertices = new Vec3Array(4);
   triangleVertices[0].set(new Vec3(1, 1, 0.0));
   triangleVertices[1].set(new Vec3(1, -1, 0.0));
@@ -27,16 +31,6 @@ var Scene = function(gl, output) {
 
   // The shape
   this.quadGeometry = new QuadGeometry(gl, triangleVertices);
-
-  this.modelMatrixUniformLocation = gl.getUniformLocation(this.program.glProgram, "modelMatrix");
-
-  this.dragonTexture = new Texture2D(gl, 'img/dragon_red.png');
-
-  this.sampler = new Sampler2D(0);
-  this.sampler.set(this.dragonTexture);
-  this.samplerUniform = gl.getUniformLocation(this.program.glProgram, "colorTexture");
-
-  this.samplerTransform = gl.getUniformLocation(this.program.glProgram, "samplerTransform");
 };
 
 Scene.prototype.toggleTranslation = function() {
@@ -63,82 +57,65 @@ Scene.prototype.update = function(gl) {
     gl.SRC_ALPHA,
     gl.ONE_MINUS_SRC_ALPHA);
 
-  if(Object.keys(gl.pendingResources).length === 0) {
-    // set shader program to use
-    this.program.use();
+  // set shader program to use
+  this.program.commit();
 
-    var modelMatrix;
-    var width = gl.canvas.clientWidth;
-    var height = gl.canvas.clientHeight;
-    var preventStretching = {};
-    // if (width >= height) {
-    if (false) {
-      preventStretching = {
-        x : 1,
-        y : width/height
-      };
-    } else {
-      preventStretching = {
-        x : height/width,
-        y : 1,
-      };
-    }
+  var modelMatrix;
+  var width = gl.canvas.clientWidth;
+  var height = gl.canvas.clientHeight;
+  var preventStretching = {};
+  // if (width >= height) {
+  if (false) {
+    preventStretching = {
+      x : 1,
+      y : width/height
+    };
+  } else {
+    preventStretching = {
+      x : height/width,
+      y : 1,
+    };
+  }
 
-    if(this.samplerUniform === null) {
-      console.log("Could not find uniform samplerUniform");
-    } else {
-      this.sampler.commit(gl, this.samplerUniform);
-    }
 
-    if(this.samplerTransform === null) {
-      console.log("Could not find uniform samplerTransform.");
-    } else {
-      var scale = {x: 8, y: 1, z: 1};
-      var samplerMat = new Mat4().scale(scale).translate(this.spriteOffset);
-      samplerMat.invert();
-      samplerMat.commit(gl, this.samplerTransform);
-    }
 
-    if(this.modelMatrixUniformLocation === null) {
-      console.log("Could not find uniform modelMatrix.");
-    } else {
-      modelMatrix = new Mat4().scale({x:-1, y:1, z:1}).rotate(-1 * this.triangleRotation).translate(this.trianglePosition).scale(0.25).scale(preventStretching);
-      // modelMatrix = new Mat4().scale(0.10);
-      modelMatrix.commit(gl, this.modelMatrixUniformLocation);
-    }
+  var scale = {x: 8, y: 1, z: 1};
+  var samplerMat = new Mat4().scale(scale).translate(this.spriteOffset);
+  samplerMat.invert();
+  Material.shared.modelViewProjMatrix.set(samplerMat);
 
-    this.quadGeometry.draw();
+  modelMatrix = new Mat4().scale({x:-1, y:1, z:1}).rotate(-1 * this.triangleRotation).translate(this.trianglePosition).scale(0.25).scale(preventStretching);
+  Material.shared.modelMatrix.set(modelMatrix);
 
-    if(this.modelMatrixUniformLocation === null) {
-      console.log("Could not find uniform modelMatrix.");
-    } else {
-      modelMatrix = new Mat4().rotate(this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25).scale(preventStretching);
-      modelMatrix.commit(gl, this.modelMatrixUniformLocation);
-    }
+  this.material.commit();
+  this.quadGeometry.draw();
 
-    // this.quadGeometry.draw();
+  modelMatrix = new Mat4().rotate(this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25).scale(preventStretching);
+  Material.shared.modelMatrix.set(modelMatrix);
 
-    // dt
-    var timeAtThisFrame = new Date().getTime();
-    var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
-    this.timeAtLastFrame = timeAtThisFrame;
+  this.material.commit();
+  this.quadGeometry.draw();
 
-    this.timeSinceLastSpriteChange += dt;
+  // dt
+  var timeAtThisFrame = new Date().getTime();
+  var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
+  this.timeAtLastFrame = timeAtThisFrame;
 
-    if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
-      this.spriteOffset.x += 1;
-      this.spriteOffset.x %= 8;
-      this.timeSinceLastSpriteChange = 0;
-    }
+  this.timeSinceLastSpriteChange += dt;
 
-    // triangle translation
-    if(this.isMoving) {
-      this.trianglePosition.x += 0.8 * dt;
-    }
+  if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
+    this.spriteOffset.x += 1;
+    this.spriteOffset.x %= 8;
+    this.timeSinceLastSpriteChange = 0;
+  }
 
-    // triangle rotation
-    if(this.isSpinning) {
-      this.triangleRotation += 0.3 * dt;
-    }
+  // triangle translation
+  if(this.isMoving) {
+    this.trianglePosition.x += 0.8 * dt;
+  }
+
+  // triangle rotation
+  if(this.isSpinning) {
+    this.triangleRotation += 0.3 * dt;
   }
 };

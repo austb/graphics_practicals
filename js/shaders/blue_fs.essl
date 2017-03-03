@@ -3,10 +3,10 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
 
   varying vec2 texCoord;
   uniform sampler2D colorTexture;
-  uniform mat4 samplerTransform;
+  uniform mat4 modelViewProjMatrix;
 
   void main(void) {
-    vec4 texC = vec4(texCoord, 0.0, 1.0) * samplerTransform;
+    vec4 texC = vec4(texCoord, 0.0, 1.0) * modelViewProjMatrix;
     gl_FragColor = texture2D(colorTexture, vec2(texC.x, texC.y));
   }
 `;

@@ -10,6 +10,27 @@
  */
 var UniformReflectionFactories = {
   /**
+   * @method makeVar
+   * @memberof UniformReflectionFactories
+   * @static
+   * @description Returns a new reflection variable based on a numberical WebGL type ID.
+   * @param {WebGLRenderingContext} gl - The rendering context.
+   * @param {Number} type - The numeric type of the uniform, i.e. a value of a type identifier property in the rendering context.
+   * @param {arraySize} - The number of elements in the uniform, if it is an array. For a single float, it must be 1.
+   * @return {Vec1 | Vec1Array | Vec2 | Vec2Array | Vec3 | Vec3Array | Vec4 | Vec4Array | Mat4 | Mat4Array | Sampler2D | Sampler2DArray | SamplerCube | SamplerCubeArray} The new reflection object.
+   */
+  makeVar : function(gl, type, arraySize, samplerIndex) {
+    switch(type) {
+      case gl.FLOAT        : return this.float(arraySize);
+      case gl.FLOAT_VEC2   : return this.vec2(arraySize);
+      case gl.FLOAT_VEC3   : return this.vec3(arraySize);
+      case gl.FLOAT_VEC4   : return this.vec4(arraySize);
+      case gl.FLOAT_MAT4   : return this.mat4(arraySize);
+      case gl.SAMPLER_2D   : return this.sampler2D(arraySize, samplerIndex);
+      case gl.SAMPLER_CUBE : return this.samplerCUBE(arraySize, samplerIndex);
+    }
+  },
+  /**
    * @method float
    * @memberof UniformReflectionFactories
    * @static

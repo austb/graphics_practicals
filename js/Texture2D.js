@@ -1,8 +1,4 @@
 var Texture2D = function(gl, mediaFileUrl) {
-  if(!gl.pendingResources) {
-    gl.pendingResources = {};
-  }
-
   gl.pendingResources[mediaFileUrl] =
              ++gl.pendingResources[mediaFileUrl] || 1;
   this.mediaFileUrl = mediaFileUrl;
