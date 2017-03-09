@@ -1,5 +1,3 @@
-'use strict';
-
 function TinyQueue(data, compare) {
     if (!(this instanceof TinyQueue)) return new TinyQueue(data, compare);
 
@@ -18,7 +16,7 @@ TinyQueue.prototype = {
 
     contains: function (obj) {
         for(var i = 0; i < this.data.length; i++) {
-          if(obj.equals(this.data[0].value)) {
+          if(obj.equals(this.data[i].value)) {
             return true;
           }
         }

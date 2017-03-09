@@ -5,7 +5,7 @@ var Scene = function(gl, output) {
   this.gl = gl;
 
   this.walls = [];
-  this.board = new Board(15);
+  this.board = new Board(10);
 
   this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
   this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "black_fs.essl");
