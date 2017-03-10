@@ -32,7 +32,6 @@ Material.prototype.commit = function() {
   Object.keys(this.program.uniforms).forEach( function(uniformName) { 
     var uniform = theMaterial.program.uniforms[uniformName]; 
     if(uniformName in Material.shared) {
-      console.debug("commiting " + uniformName);
       Material.shared[uniformName].commit(
         gl, uniform.location);
     } else {
