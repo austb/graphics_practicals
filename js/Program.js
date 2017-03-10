@@ -1,4 +1,4 @@
-var Program = function(gl, vertexShader, fragmentShader, attribs) {
+var Program = function(gl, vertexShader, fragmentShader) {
   var i;
   this.gl = gl;
   this.sourceFileNames = {vs:vertexShader.sourceFileName,
@@ -7,8 +7,9 @@ var Program = function(gl, vertexShader, fragmentShader, attribs) {
   gl.attachShader(this.glProgram, vertexShader.glShader);
   gl.attachShader(this.glProgram, fragmentShader.glShader);
 
-  for(i = 0; i < attribs.length; i+=1) {
-    gl.bindAttribLocation(this.glProgram, i, attribs[i]);
+  var quadAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
+  for(i = 0; i < quadAttribs.length; i+=1) {
+    gl.bindAttribLocation(this.glProgram, i, quadAttribs[i]);
   }
 
   gl.linkProgram(this.glProgram);

@@ -3,26 +3,27 @@ var Scene = function(gl, output) {
 
   this.timeAtLastFrame = new Date().getTime();
 
+  // Load shaders and construct the program
   var vertexShader = new Shader(gl, gl.VERTEX_SHADER, "dragon_vs.essl");
   var fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "dragon_fs.essl");
+  var program = new Program(gl, vertexShader, fragmentShader);
 
-  // shader program
-  var triangleAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
-  var program = new Program(gl, vertexShader, fragmentShader, triangleAttribs);
-
+  // Create a material from the program and a texture
   var material = new Material(gl, program);
   material.colorTexture.set(
     new Texture2D(gl, 'img/dragon_red.png'));
 
-  // The shape
+  // Construct the quad to draw the texture on
   var quadGeometry = new QuadGeometry(gl);
 
+  // Create a mesh of the shape and material
   var mesh = new Mesh(quadGeometry, material);
+
+  // Create an animatable subclass of GameObject2D
   this.dragon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 8, y: 1}});
 
   this.gameObjects = [];
   this.gameObjects.push(this.dragon);
-
   this.camera = new OrthoCamera();
 };
 
@@ -49,13 +50,16 @@ Scene.prototype.update = function(gl) {
     gl.SRC_ALPHA,
     gl.ONE_MINUS_SRC_ALPHA);
 
-  this.dragon.updateModelTransformation();
-  this.dragon.draw(this.camera);
-
   // dt
   var timeAtThisFrame = new Date().getTime();
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
 
-  this.dragon.move(dt);
+  for(var i = 0; i < this.gameObjects.length; i++) {
+    var obj = this.gameObjects[i];
+    obj.move(dt);
+    obj.updateModelTransformation();
+    obj.draw(this.camera);
+  }
+
 };
