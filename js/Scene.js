@@ -1,19 +1,6 @@
-var ANIM_RATE=0.10;
-
-var setDragonTextureMat = function(offset) {
-  var scale = {x: 8, y: 1, z: 1};
-  var samplerMat = new Mat4().scale(scale).translate(offset);
-  samplerMat.invert();
-  Material.shared.textureProjMatrix.set(samplerMat);
-};
-
 var Scene = function(gl, output) {
   this.gl = gl;
 
-  this.isMoving = false;
-  this.isSpinning = false;
-  this.timeSinceLastSpriteChange = 0;
-  this.spriteOffset = {x: 0, y: 0, z: 0};
   this.timeAtLastFrame = new Date().getTime();
 
   var vertexShader = new Shader(gl, gl.VERTEX_SHADER, "dragon_vs.essl");
@@ -31,9 +18,7 @@ var Scene = function(gl, output) {
   var quadGeometry = new QuadGeometry(gl);
 
   var mesh = new Mesh(quadGeometry, material);
-  this.dragon = new GameObject2D(mesh);
-  this.dragon.scale = {x:-0.25, y:0.25, z:0.25};
-  setDragonTextureMat(this.spriteOffset);
+  this.dragon = new Dragon(mesh);
 
   this.gameObjects = [];
   this.gameObjects.push(this.dragon);
@@ -42,16 +27,15 @@ var Scene = function(gl, output) {
 };
 
 Scene.prototype.toggleTranslation = function() {
-  this.isMoving = !this.isMoving;
+  this.dragon.isMoving = !this.dragon.isMoving;
 };
 
 Scene.prototype.toggleRotation = function() {
-  this.isSpinning = !this.isSpinning;
+  this.dragon.isSpinning = !this.dragon.isSpinning;
 };
 
 Scene.prototype.resetScene = function() {
-  this.dragon.position = new Vec3(0, 0, 0);
-  this.dragon.orientation = 0;
+  this.dragon.resetPosition();
 };
 
 Scene.prototype.update = function(gl) {
@@ -66,7 +50,6 @@ Scene.prototype.update = function(gl) {
     gl.ONE_MINUS_SRC_ALPHA);
 
   this.dragon.updateModelTransformation();
-
   this.dragon.draw(this.camera);
 
   // dt
@@ -74,28 +57,5 @@ Scene.prototype.update = function(gl) {
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
 
-  this.timeSinceLastSpriteChange += dt;
-
-  this.moveDragon(dt);
-
-};
-
-Scene.prototype.moveDragon = function(dt) {
-  if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
-    this.spriteOffset.x += 1;
-    this.spriteOffset.x %= 8;
-    this.timeSinceLastSpriteChange = 0;
-
-    setDragonTextureMat(this.spriteOffset);
-  }
-
-  // triangle translation
-  if(this.isMoving) {
-    this.dragon.position.add(0.5 * dt, 0, 0);
-  }
-
-  // triangle rotation
-  if(this.isSpinning) {
-    this.dragon.orientation += 1.0 * dt;
-  }
+  this.dragon.move(dt);
 };

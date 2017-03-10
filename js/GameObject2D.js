@@ -26,3 +26,7 @@ GameObject2D.prototype.draw = function(camera){
 
   this.mesh.draw();
 };
+
+GameObject2D.prototype.move = function(dt) {
+  console.warn("Abstract method should be overriden in subclass");
+};
