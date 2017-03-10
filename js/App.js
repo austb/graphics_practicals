@@ -63,6 +63,16 @@ App.prototype.update = function() {
   });
 };
 
+App.prototype.updateAspectRatio = function() {
+    this.canvas.width = this.canvas.clientWidth;
+    this.canvas.height = this.canvas.clientHeight;
+    this.gl.viewport(0, 0,
+      this.canvas.width, this.canvas.height);
+    this.scene.camera.setAspectRatio(
+      this.canvas.clientWidth /
+      this.canvas.clientHeight );
+};
+
 // entry point from HTML
 window.addEventListener('load', function() {
 
@@ -71,9 +81,14 @@ window.addEventListener('load', function() {
   overlay.innerHTML = "WebGL";
 
   app = new App(canvas);
+  app.updateAspectRatio();
 
   window.requestAnimationFrame(function() {
     app.update();
+  });
+
+  window.addEventListener('resize', function() {
+    app.updateAspectRatio();
   });
 
 });

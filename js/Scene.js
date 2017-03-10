@@ -12,8 +12,8 @@ var Scene = function(gl, output) {
   this.spriteOffset = {x: 0, y: 0, z: 0};
   this.timeAtLastFrame = new Date().getTime();
 
-  this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
-  this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "blue_fs.essl");
+  this.vertexShader = new Shader(gl, gl.VERTEX_SHADER, "dragon_vs.essl");
+  this.fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "dragon_fs.essl");
 
   // shader program
   var triangleAttribs = ['vertexPosition', 'vertexNormal', 'vertexTexCoord'];
@@ -22,6 +22,7 @@ var Scene = function(gl, output) {
   this.material = new Material(gl, this.program);
   this.material.colorTexture.set(
     new Texture2D(gl, 'img/dragon_red.png'));
+  this.material.texOffset.set(0.0, 0.0);
 
   var triangleVertices = new Vec3Array(4);
   triangleVertices[0].set(new Vec3(1, 1, 0.0));
@@ -31,6 +32,12 @@ var Scene = function(gl, output) {
 
   // The shape
   this.quadGeometry = new QuadGeometry(gl, triangleVertices);
+
+  this.mesh = new Mesh(this.quadGeometry, this.material);
+  this.dragon = new GameObject2D(this.mesh);
+  this.gameObjects = [];
+  this.gameObjects.push(this.dragon);
+  this.camera = new OrthoCamera();
 };
 
 Scene.prototype.toggleTranslation = function() {
@@ -60,41 +67,17 @@ Scene.prototype.update = function(gl) {
   // set shader program to use
   this.program.commit();
 
-  var modelMatrix;
-  var width = gl.canvas.clientWidth;
-  var height = gl.canvas.clientHeight;
-  var preventStretching = {};
-  // if (width >= height) {
-  if (false) {
-    preventStretching = {
-      x : 1,
-      y : width/height
-    };
-  } else {
-    preventStretching = {
-      x : height/width,
-      y : 1,
-    };
-  }
-
-
-
   var scale = {x: 8, y: 1, z: 1};
   var samplerMat = new Mat4().scale(scale).translate(this.spriteOffset);
   samplerMat.invert();
-  Material.shared.modelViewProjMatrix.set(samplerMat);
+  this.material.texOffset.set(samplerMat);
 
-  modelMatrix = new Mat4().scale({x:-1, y:1, z:1}).rotate(-1 * this.triangleRotation).translate(this.trianglePosition).scale(0.25).scale(preventStretching);
-  Material.shared.modelMatrix.set(modelMatrix);
+  this.dragon.scale = {x:-0.25, y:0.25, z:0.25};
+  this.dragon.position = new Vec3(this.trianglePosition);
+  this.dragon.orientation = this.triangleRotation;
+  this.dragon.updateModelTransformation();
 
-  this.material.commit();
-  this.quadGeometry.draw();
-
-  modelMatrix = new Mat4().rotate(this.triangleRotation).translate(-1 * this.trianglePosition.x).scale(0.25).scale(preventStretching);
-  Material.shared.modelMatrix.set(modelMatrix);
-
-  this.material.commit();
-  this.quadGeometry.draw();
+  this.dragon.draw(this.camera);
 
   // dt
   var timeAtThisFrame = new Date().getTime();
@@ -111,7 +94,7 @@ Scene.prototype.update = function(gl) {
 
   // triangle translation
   if(this.isMoving) {
-    this.trianglePosition.x += 0.8 * dt;
+    this.trianglePosition.x += 0.3 * dt;
   }
 
   // triangle rotation
