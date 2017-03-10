@@ -1,23 +1,26 @@
 var AnimatedGameObject2D = (function() {
   var ANIM_RATE = 0.10;
-  var config = {
-    scale: {x: -0.25, y: 0.25, z: 0.25},
-    isMoving: false,
-    movementVec : new Vec3(0.5, 0.0, 0.0),
-    isRotating: false,
-    rotationConst: 1.0,
-    spriteOffset: {x: 0, y: 0},
-    spriteDimensions: {x: 8, y: 1}
-  };
 
   var mergeDefaults = function(obj) {
+    var defaults = {
+      scale: {x: -0.25, y: 0.25, z: 0.25},
+      isMoving: false,
+      movementVec : new Vec3(0.5, 0.0, 0.0),
+      isRotating: false,
+      rotationConst: 1.0,
+      spriteOffset: {x: 0, y: 0},
+      spriteDimensions: {x: 8, y: 1}
+    };
+
     for(var attr in obj) {
-      if(!config[attr]) {
+      if(!defaults[attr]) {
         console.warn("The attribute: " + attr + " is not used by AnimatedGameObject2D");
       }
 
-      config[attr] = obj[attr];
+      defaults[attr] = obj[attr];
     }
+
+    return defaults;
   };
 
   var AnimatedGameObject2D = function(mesh, opts) {
@@ -28,8 +31,8 @@ var AnimatedGameObject2D = (function() {
       console.warn("No spriteDimensions provided (should you use GameObject2D instead?)");
     }
 
-    mergeDefaults(opts);
-    this.scale = config.scale;
+    this.config = mergeDefaults(opts);
+    this.scale = this.config.scale;
 
     this.timeSinceLastSpriteChange = 0;
 
@@ -44,30 +47,30 @@ var AnimatedGameObject2D = (function() {
   };
 
   AnimatedGameObject2D.prototype.toggleMovement = function() {
-    config.isMoving = !config.isMoving;
+    this.config.isMoving = !this.config.isMoving;
   };
 
   AnimatedGameObject2D.prototype.toggleRotation = function() {
-    config.isRotating = !config.isRotating;
+    this.config.isRotating = !this.config.isRotating;
   };
 
   AnimatedGameObject2D.prototype.move = function(dt) {
-    if(config.isMoving) {
-      this.position.addScaled(dt, config.movementVec);
+    if(this.config.isMoving) {
+      this.position.addScaled(dt, this.config.movementVec);
     }
 
-    if(config.isRotating) {
-      this.orientation += config.rotationConst * dt;
+    if(this.config.isRotating) {
+      this.orientation += this.config.rotationConst * dt;
     }
 
     this.timeSinceLastSpriteChange += dt;
 
     if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
-      config.spriteOffset.x += 1;
+      this.config.spriteOffset.x += 1;
 
-      if(config.spriteOffset.x == config.spriteDimensions.x) {
-        config.spriteOffset.x %= config.spriteDimensions.x;
-        config.spriteOffset.y = (config.spriteOffset.y + 1) % config.spriteOffset.y;
+      if(this.config.spriteOffset.x == this.config.spriteDimensions.x) {
+        this.config.spriteOffset.x %= this.config.spriteDimensions.x;
+        this.config.spriteOffset.y = (this.config.spriteOffset.y + 1) % this.config.spriteOffset.y;
       }
 
       this.timeSinceLastSpriteChange = 0;
@@ -77,8 +80,8 @@ var AnimatedGameObject2D = (function() {
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
-    var samplerMat = new Mat4().scale({x: config.spriteDimensions.x, y: config.spriteDimensions.y, z: 1.0}).
-      translate(config.spriteOffset);
+    var samplerMat = new Mat4().scale({x: this.config.spriteDimensions.x, y: this.config.spriteDimensions.y, z: 1.0}).
+      translate(this.config.spriteOffset);
     samplerMat.invert();
     Material.shared.textureProjMatrix.set(samplerMat);
   };
