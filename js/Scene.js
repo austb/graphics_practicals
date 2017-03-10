@@ -27,14 +27,8 @@ var Scene = function(gl, output) {
   material.colorTexture.set(
     new Texture2D(gl, 'img/dragon_red.png'));
 
-  var triangleVertices = new Vec3Array(4);
-  triangleVertices[0].set(new Vec3(1, 1, 0.0));
-  triangleVertices[1].set(new Vec3(1, -1, 0.0));
-  triangleVertices[2].set(new Vec3(-1, 1, 0.0));
-  triangleVertices[3].set(new Vec3(-1, -1, 0.0));
-
   // The shape
-  var quadGeometry = new QuadGeometry(gl, triangleVertices);
+  var quadGeometry = new QuadGeometry(gl);
 
   var mesh = new Mesh(quadGeometry, material);
   this.dragon = new GameObject2D(mesh);

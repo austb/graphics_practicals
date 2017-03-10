@@ -1,6 +1,10 @@
 var QuadGeometry = function(gl, vertices) {
   this.gl = gl;
-  this.vertices = vertices;
+  this.vertices = new Vec3Array(4);
+  this.vertices[0].set(new Vec3(1, 1, 0.0));
+  this.vertices[1].set(new Vec3(1, -1, 0.0));
+  this.vertices[2].set(new Vec3(-1, 1, 0.0));
+  this.vertices[3].set(new Vec3(-1, -1, 0.0));
 
   this.vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
