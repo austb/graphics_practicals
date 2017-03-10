@@ -23,24 +23,16 @@ var App = function(canvas) {
 
   // create a simple scene
   this.scene = new Scene(this.gl);
+  this.keysPressed = {};
 
   var scene = this.scene;
 
-  document.onkeypress = function(event) {
-    switch(event.key) {
-      case 's':
-        scene.toggleTranslation();
-        break;
-      case 'r':
-        scene.resetScene();
-        break;
-      case 'c':
-        scene.toggleRotation();
-        break;
-      default:
-        alert("Press s to toggle the animation\nPress c to toggle the rotation\nPress r to reset to triangle's position");
-        break;
-    }
+  document.onkeydown = function(event) {
+    app.keysPressed[keyboardMap[event.keyCode]] = true;
+  };
+
+  document.onkeyup = function(event) {
+    app.keysPressed[keyboardMap[event.keyCode]] = false;
   };
 
 };
@@ -51,7 +43,7 @@ App.prototype.update = function() {
   var pendingResourceNames = Object.keys(this.gl.pendingResources);
   if(pendingResourceNames.length === 0) {
     // animate and draw scene
-    this.scene.update(this.gl);
+    this.scene.update(this.gl, this.keysPressed);
     overlay.innerHTML = "Ready.";
   } else {
     overlay.innerHTML = "Loading: " + pendingResourceNames;

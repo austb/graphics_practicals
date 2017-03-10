@@ -28,7 +28,6 @@ var Scene = function(gl, output) {
 };
 
 Scene.prototype.toggleTranslation = function() {
-  this.dragon.toggleMovement();
 };
 
 Scene.prototype.toggleRotation = function() {
@@ -39,7 +38,7 @@ Scene.prototype.resetScene = function() {
   this.dragon.resetPosition();
 };
 
-Scene.prototype.update = function(gl) {
+Scene.prototype.update = function(gl, keysPressed) {
   // set clear color (part of the OpenGL render state)
   gl.clearColor(1.0, 1.0, 1.0, 1.0);
   // clear the screen
@@ -54,6 +53,18 @@ Scene.prototype.update = function(gl) {
   var timeAtThisFrame = new Date().getTime();
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
+
+  if(keysPressed.D) {
+    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(1.0, 0.0, 0.0));
+  }
+
+  if(keysPressed.W) {
+    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(0.0, 1.0, 0.0));
+  }
+
+  if(keysPressed.A) {
+    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(-1.0, 0.0, 0.0));
+  }
 
   for(var i = 0; i < this.gameObjects.length; i++) {
     var obj = this.gameObjects[i];

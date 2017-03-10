@@ -34,6 +34,8 @@ var AnimatedGameObject2D = (function() {
     this.config = mergeDefaults(opts);
     this.scale = this.config.scale;
 
+    this.physicsObject = new PhysicsObject(this);
+
     this.timeSinceLastSpriteChange = 0;
 
     this.setTextureMat4();
@@ -54,29 +56,26 @@ var AnimatedGameObject2D = (function() {
     this.config.isRotating = !this.config.isRotating;
   };
 
+  AnimatedGameObject2D.prototype.changeSprite = function() {
+    this.config.spriteOffset.x += 1;
+
+    if(this.config.spriteOffset.x == this.config.spriteDimensions.x) {
+      this.config.spriteOffset.x %= this.config.spriteDimensions.x;
+      this.config.spriteOffset.y = (this.config.spriteOffset.y + 1) % this.config.spriteOffset.y;
+    }
+
+    this.timeSinceLastSpriteChange = 0;
+    this.setTextureMat4();
+  };
+
   AnimatedGameObject2D.prototype.move = function(dt) {
-    if(this.config.isMoving) {
-      this.position.addScaled(dt, this.config.movementVec);
-    }
-
-    if(this.config.isRotating) {
-      this.orientation += this.config.rotationConst * dt;
-    }
-
     this.timeSinceLastSpriteChange += dt;
 
     if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
-      this.config.spriteOffset.x += 1;
-
-      if(this.config.spriteOffset.x == this.config.spriteDimensions.x) {
-        this.config.spriteOffset.x %= this.config.spriteDimensions.x;
-        this.config.spriteOffset.y = (this.config.spriteOffset.y + 1) % this.config.spriteOffset.y;
-      }
-
-      this.timeSinceLastSpriteChange = 0;
-      this.setTextureMat4();
+      this.changeSprite();
     }
 
+    this.physicsObject.move(dt);
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
