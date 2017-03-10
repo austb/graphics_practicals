@@ -18,7 +18,7 @@ var Scene = function(gl, output) {
   var quadGeometry = new QuadGeometry(gl);
 
   var mesh = new Mesh(quadGeometry, material);
-  this.dragon = new Dragon(mesh);
+  this.dragon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 8, y: 1}});
 
   this.gameObjects = [];
   this.gameObjects.push(this.dragon);
@@ -27,11 +27,11 @@ var Scene = function(gl, output) {
 };
 
 Scene.prototype.toggleTranslation = function() {
-  this.dragon.isMoving = !this.dragon.isMoving;
+  this.dragon.toggleMovement();
 };
 
 Scene.prototype.toggleRotation = function() {
-  this.dragon.isSpinning = !this.dragon.isSpinning;
+  this.dragon.toggleRotation();
 };
 
 Scene.prototype.resetScene = function() {
