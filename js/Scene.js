@@ -11,7 +11,7 @@ var Scene = function(gl, output) {
   // Create a material from the program and a texture
   var material = new Material(gl, program);
   material.colorTexture.set(
-    new Texture2D(gl, 'img/dragon_red.png'));
+    new Texture2D(gl, 'img/lander.png'));
 
   // Construct the quad to draw the texture on
   var quadGeometry = new QuadGeometry(gl);
@@ -20,11 +20,13 @@ var Scene = function(gl, output) {
   var mesh = new Mesh(quadGeometry, material);
 
   // Create an animatable subclass of GameObject2D
-  this.dragon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 8, y: 1}});
+  this.dragon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
 
   this.gameObjects = [];
   this.gameObjects.push(this.dragon);
   this.camera = new OrthoCamera();
+
+  this.physicsWorld = new PhysicsWorld(this.gameObjects);
 };
 
 Scene.prototype.toggleTranslation = function() {
@@ -55,21 +57,21 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.timeAtLastFrame = timeAtThisFrame;
 
   if(keysPressed.D) {
-    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(1.0, 0.0, 0.0));
+    this.dragon.physics.applyCenterOfMassForce(new Vec3(10.0, 0.0, 0.0));
   }
 
   if(keysPressed.W) {
-    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(0.0, 1.0, 0.0));
+    this.dragon.physics.applyCenterOfMassForce(new Vec3(0.0, 30.0, 0.0));
   }
 
   if(keysPressed.A) {
-    this.dragon.physicsObject.applyCenterOfMassForce(new Vec3(-1.0, 0.0, 0.0));
+    this.dragon.physics.applyCenterOfMassForce(new Vec3(-10.0, 0.0, 0.0));
   }
 
+  this.physicsWorld.update(dt);
   for(var i = 0; i < this.gameObjects.length; i++) {
     var obj = this.gameObjects[i];
     obj.move(dt);
-    obj.updateModelTransformation();
     obj.draw(this.camera);
   }
 

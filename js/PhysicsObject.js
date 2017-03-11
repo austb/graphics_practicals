@@ -6,6 +6,7 @@ var PhysicsObject = (function() {
 
   var mergeDefaults = function(obj) {
     var defaults = {
+      affectedByGravity: true,
       dragEnabled: true,
       dragFactor: 1.0
     };

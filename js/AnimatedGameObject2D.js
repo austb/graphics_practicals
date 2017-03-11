@@ -3,7 +3,7 @@ var AnimatedGameObject2D = (function() {
 
   var mergeDefaults = function(obj) {
     var defaults = {
-      scale: {x: -0.25, y: 0.25, z: 0.25},
+      scale: {x: -1.0, y: 1.0, z: 1.0},
       isMoving: false,
       movementVec : new Vec3(0.5, 0.0, 0.0),
       isRotating: false,
@@ -31,10 +31,10 @@ var AnimatedGameObject2D = (function() {
       console.warn("No spriteDimensions provided (should you use GameObject2D instead?)");
     }
 
-    this.config = mergeDefaults(opts);
-    this.scale = this.config.scale;
+    this.opts = mergeDefaults(opts);
+    this.scale = this.opts.scale;
 
-    this.physicsObject = new PhysicsObject(this);
+    this.physics = new PhysicsObject(this);
 
     this.timeSinceLastSpriteChange = 0;
 
@@ -49,19 +49,19 @@ var AnimatedGameObject2D = (function() {
   };
 
   AnimatedGameObject2D.prototype.toggleMovement = function() {
-    this.config.isMoving = !this.config.isMoving;
+    this.opts.isMoving = !this.opts.isMoving;
   };
 
   AnimatedGameObject2D.prototype.toggleRotation = function() {
-    this.config.isRotating = !this.config.isRotating;
+    this.opts.isRotating = !this.opts.isRotating;
   };
 
   AnimatedGameObject2D.prototype.changeSprite = function() {
-    this.config.spriteOffset.x += 1;
+    this.opts.spriteOffset.x += 1;
 
-    if(this.config.spriteOffset.x == this.config.spriteDimensions.x) {
-      this.config.spriteOffset.x %= this.config.spriteDimensions.x;
-      this.config.spriteOffset.y = (this.config.spriteOffset.y + 1) % this.config.spriteOffset.y;
+    if(this.opts.spriteOffset.x == this.opts.spriteDimensions.x) {
+      this.opts.spriteOffset.x %= this.opts.spriteDimensions.x;
+      this.opts.spriteOffset.y = (this.opts.spriteOffset.y + 1) % this.opts.spriteOffset.y;
     }
 
     this.timeSinceLastSpriteChange = 0;
@@ -75,12 +75,14 @@ var AnimatedGameObject2D = (function() {
       this.changeSprite();
     }
 
-    this.physicsObject.move(dt);
+    this.physics.move(dt);
+
+    this.updateModelTransformation();
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
-    var samplerMat = new Mat4().scale({x: this.config.spriteDimensions.x, y: this.config.spriteDimensions.y, z: 1.0}).
-      translate(this.config.spriteOffset);
+    var samplerMat = new Mat4().scale({x: this.opts.spriteDimensions.x, y: this.opts.spriteDimensions.y, z: 1.0}).
+      translate(this.opts.spriteOffset);
     samplerMat.invert();
     Material.shared.textureProjMatrix.set(samplerMat);
   };
