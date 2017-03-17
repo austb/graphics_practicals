@@ -20,29 +20,57 @@ var Scene = function(gl, output) {
   var mesh = new Mesh(quadGeometry, material);
 
   // Create an animatable subclass of GameObject2D
-  this.dragon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.lander = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.lander.keyActions = landerActions;
+
+
+
+
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/afterburner.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.afterburner = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.afterburner.physics.position.set(0.15, -1.4, 0.0);
+  this.afterburner.scale.set(0.8, 0.5, 0.5);
+  this.afterburner.physics.orientation = Math.PI / 2;
+  this.afterburner.disableAllEnvironmentForces();
+  this.afterburner.parent = this.lander;
+  this.afterburner.keyActions = afterBurnerActions("W");
+
+  this.afterburner2 = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.afterburner2.physics.position.set(0.9, 0.2, 0.0);
+  this.afterburner2.scale.set(-0.5, 0.5, 0.5);
+  this.afterburner2.disableAllEnvironmentForces();
+  this.afterburner2.parent = this.lander;
+  this.afterburner2.keyActions = afterBurnerActions("A");
+
+  this.afterburner3 = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.afterburner3.physics.position.set(-1.0, 0.2, 0.0);
+  this.afterburner3.scale.set(0.5, 0.5, 0.5);
+  this.afterburner3.disableAllEnvironmentForces();
+  this.afterburner3.parent = this.lander;
+  this.afterburner3.keyActions = afterBurnerActions("D");
 
   this.gameObjects = [];
-  this.gameObjects.push(this.dragon);
+  this.gameObjects.push(this.lander);
+  this.gameObjects.push(this.afterburner);
+  this.gameObjects.push(this.afterburner2);
+  this.gameObjects.push(this.afterburner3);
+
+
+
+
   this.camera = new OrthoCamera();
 
   this.physicsWorld = new PhysicsWorld(this.gameObjects);
 };
 
-Scene.prototype.toggleTranslation = function() {
-};
-
-Scene.prototype.toggleRotation = function() {
-  this.dragon.toggleRotation();
-};
-
-Scene.prototype.resetScene = function() {
-  this.dragon.resetPosition();
-};
-
 Scene.prototype.update = function(gl, keysPressed) {
   // set clear color (part of the OpenGL render state)
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
   // clear the screen
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -56,23 +84,25 @@ Scene.prototype.update = function(gl, keysPressed) {
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
 
-  if(keysPressed.D) {
-    this.dragon.physics.applyCenterOfMassForce(new Vec3(10.0, 0.0, 0.0));
-  }
-
-  if(keysPressed.W) {
-    this.dragon.physics.applyCenterOfMassForce(new Vec3(0.0, 30.0, 0.0));
-  }
-
-  if(keysPressed.A) {
-    this.dragon.physics.applyCenterOfMassForce(new Vec3(-10.0, 0.0, 0.0));
-  }
-
   this.physicsWorld.update(dt);
-  for(var i = 0; i < this.gameObjects.length; i++) {
-    var obj = this.gameObjects[i];
+
+  var obj, i;
+  for(i = 0; i < this.gameObjects.length; i++) {
+    obj = this.gameObjects[i];
+
     obj.move(dt);
-    obj.draw(this.camera);
+    if(obj.keyActions) {
+      obj.keyActions(obj, keysPressed);
+    }
+  }
+
+  for(i = 0; i < this.gameObjects.length; i++) {
+    obj = this.gameObjects[i];
+
+    if(obj.shouldDisplayObject()) {
+      obj.updateModelTransformation();
+      obj.draw(this.camera);
+    }
   }
 
 };

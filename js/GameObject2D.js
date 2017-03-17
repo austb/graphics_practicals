@@ -20,9 +20,16 @@ GameObject2D.prototype.updateModelTransformation =
 
 GameObject2D.prototype.draw = function(camera){
 
-  Material.shared.modelViewProjMatrix.set().
-    mul(this.modelMatrix).
-    mul(camera.viewProjMatrix);
+  if(this.parent) {
+    Material.shared.modelViewProjMatrix.set().
+      mul(this.modelMatrix).
+      mul(this.parent.modelMatrix).
+      mul(camera.viewProjMatrix);
+  } else {
+    Material.shared.modelViewProjMatrix.set().
+      mul(this.modelMatrix).
+      mul(camera.viewProjMatrix);
+  }
 
   this.mesh.draw();
 };

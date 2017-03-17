@@ -1,7 +1,7 @@
 var OrthoCamera = function() {
   this.position = new Vec2(0.0, 0);
   this.rotation = 0;
-  this.windowSize = new Vec2(10, 10);
+  this.windowSize = new Vec2(25, 25);
 
   this.viewProjMatrix = new Mat4();
   this.updateViewProjMatrix();

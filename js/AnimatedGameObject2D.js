@@ -1,15 +1,12 @@
 var AnimatedGameObject2D = (function() {
-  var ANIM_RATE = 0.10;
+  var ANIM_RATE = 0.05;
 
   var mergeDefaults = function(obj) {
     var defaults = {
-      scale: {x: -1.0, y: 1.0, z: 1.0},
-      isMoving: false,
-      movementVec : new Vec3(0.5, 0.0, 0.0),
-      isRotating: false,
       rotationConst: 1.0,
       spriteOffset: {x: 0, y: 0},
-      spriteDimensions: {x: 8, y: 1}
+      spriteDimensions: {x: 8, y: 1},
+      display: true,
     };
 
     for(var attr in obj) {
@@ -32,7 +29,6 @@ var AnimatedGameObject2D = (function() {
     }
 
     this.opts = mergeDefaults(opts);
-    this.scale = this.opts.scale;
 
     this.physics = new PhysicsObject(this);
 
@@ -43,25 +39,20 @@ var AnimatedGameObject2D = (function() {
 
   AnimatedGameObject2D.prototype = Object.create(GameObject2D.prototype);
 
+  AnimatedGameObject2D.prototype.disableAllEnvironmentForces = function() {
+    this.physics.disableAllEnvironmentForces();
+  };
   AnimatedGameObject2D.prototype.resetPosition = function() {
     this.position = new Vec3(0, 0, 0);
     this.orientation = 0;
-  };
-
-  AnimatedGameObject2D.prototype.toggleMovement = function() {
-    this.opts.isMoving = !this.opts.isMoving;
-  };
-
-  AnimatedGameObject2D.prototype.toggleRotation = function() {
-    this.opts.isRotating = !this.opts.isRotating;
   };
 
   AnimatedGameObject2D.prototype.changeSprite = function() {
     this.opts.spriteOffset.x += 1;
 
     if(this.opts.spriteOffset.x == this.opts.spriteDimensions.x) {
-      this.opts.spriteOffset.x %= this.opts.spriteDimensions.x;
-      this.opts.spriteOffset.y = (this.opts.spriteOffset.y + 1) % this.opts.spriteOffset.y;
+      this.opts.spriteOffset.x = 0;
+      this.opts.spriteOffset.y = (this.opts.spriteOffset.y + 1) % this.opts.spriteDimensions.y;
     }
 
     this.timeSinceLastSpriteChange = 0;
@@ -77,7 +68,6 @@ var AnimatedGameObject2D = (function() {
 
     this.physics.move(dt);
 
-    this.updateModelTransformation();
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
@@ -85,6 +75,10 @@ var AnimatedGameObject2D = (function() {
       translate(this.opts.spriteOffset);
     samplerMat.invert();
     Material.shared.textureProjMatrix.set(samplerMat);
+  };
+
+  AnimatedGameObject2D.prototype.shouldDisplayObject = function() {
+    return this.opts.display;
   };
 
   return AnimatedGameObject2D;
