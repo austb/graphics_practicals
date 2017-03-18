@@ -23,9 +23,6 @@ var Scene = function(gl, output) {
   this.lander = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.lander.keyActions = landerActions;
 
-
-
-
   material = new Material(gl, program);
   material.colorTexture.set(
     new Texture2D(gl, 'img/afterburner.png'));
@@ -33,39 +30,56 @@ var Scene = function(gl, output) {
   mesh = new Mesh(quadGeometry, material);
 
   this.afterburner = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.afterburner.physics.position.set(0.15, -1.4, 0.0);
+  this.afterburner.physics.position.set(-0.15, -1.38, 0.0);
   this.afterburner.scale.set(0.8, 0.5, 0.5);
-  this.afterburner.physics.orientation = Math.PI / 2;
+  this.afterburner.physics.orientation = -Math.PI / 2;
   this.afterburner.disableAllEnvironmentForces();
   this.afterburner.parent = this.lander;
   this.afterburner.keyActions = afterBurnerActions("W");
 
   this.afterburner2 = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.afterburner2.physics.position.set(0.9, 0.2, 0.0);
-  this.afterburner2.scale.set(-0.5, 0.5, 0.5);
+  this.afterburner2.physics.position.set(1.0, 0.2, 0.0);
+  this.afterburner2.scale.set(0.5, 0.5, 0.5);
   this.afterburner2.disableAllEnvironmentForces();
   this.afterburner2.parent = this.lander;
   this.afterburner2.keyActions = afterBurnerActions("A");
 
   this.afterburner3 = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.afterburner3.physics.position.set(-1.0, 0.2, 0.0);
-  this.afterburner3.scale.set(0.5, 0.5, 0.5);
+  this.afterburner3.physics.position.set(-0.9, 0.2, 0.0);
+  this.afterburner3.scale.set(-0.5, 0.5, 0.5);
   this.afterburner3.disableAllEnvironmentForces();
   this.afterburner3.parent = this.lander;
   this.afterburner3.keyActions = afterBurnerActions("D");
+
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/jovian.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.jovian = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 10, y: 14}});
+  this.jovian.disableAllEnvironmentForces();
+  this.jovian.scale.set(1,1,1);
 
   this.gameObjects = [];
   this.gameObjects.push(this.lander);
   this.gameObjects.push(this.afterburner);
   this.gameObjects.push(this.afterburner2);
   this.gameObjects.push(this.afterburner3);
+  // this.gameObjects.push(this.jovian);
 
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/plasma.png'));
 
+  mesh = new Mesh(quadGeometry, material);
 
+  this.newPlasma = newPlasmaExhaustFn(this, mesh);
 
   this.camera = new OrthoCamera();
 
   this.physicsWorld = new PhysicsWorld(this.gameObjects);
+  this.physicsWorld.opts.gravityEnabled = false;
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -91,8 +105,9 @@ Scene.prototype.update = function(gl, keysPressed) {
     obj = this.gameObjects[i];
 
     obj.move(dt);
+
     if(obj.keyActions) {
-      obj.keyActions(obj, keysPressed);
+      obj.keyActions(obj, keysPressed, dt, this);
     }
   }
 
@@ -101,6 +116,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
     if(obj.shouldDisplayObject()) {
       obj.updateModelTransformation();
+      obj.setTextureMat4();
       obj.draw(this.camera);
     }
   }

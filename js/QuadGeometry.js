@@ -1,10 +1,10 @@
 var QuadGeometry = function(gl, vertices) {
   this.gl = gl;
   this.vertices = new Vec3Array(4);
-  this.vertices[0].set(new Vec3(1, 1, 0.0));
-  this.vertices[1].set(new Vec3(1, -1, 0.0));
-  this.vertices[2].set(new Vec3(-1, 1, 0.0));
-  this.vertices[3].set(new Vec3(-1, -1, 0.0));
+  this.vertices[3].set(new Vec3(1, 1, 0.0));
+  this.vertices[2].set(new Vec3(1, -1, 0.0));
+  this.vertices[1].set(new Vec3(-1, 1, 0.0));
+  this.vertices[0].set(new Vec3(-1, -1, 0.0));
 
   this.vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -27,10 +27,10 @@ var QuadGeometry = function(gl, vertices) {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTexCoordBuffer);
   gl.bufferData(gl.ARRAY_BUFFER,
     new Float32Array([
-      0, 0,
       0, 1,
-      1, 0,
+      0, 0,
       1, 1,
+      1, 0,
     ]),
     gl.STATIC_DRAW);
 
