@@ -1,3 +1,35 @@
+var landerExplosion = function(scene, lander, mesh) {
+  return function() {
+    if(lander.opts.display) {
+      var explosion = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 6, y: 6}});
+      explosion.disableAllEnvironmentForces();
+      explosion.opts.animationRate = 0.05;
+
+      scene.explosion = explosion;
+
+      var now = new Date().getTime();
+      lander.scheduleRemoval();
+
+      explosion.physics.position.set(lander.position);
+      explosion.scheduleRemoval(1700);
+
+      scene.gameObjects.push(explosion);
+    }
+  };
+};
+
+var platformCollisionWithLanderAction = function(platform, lander) {
+  // Land if above and upright
+  var standardAngle =  (Math.abs(lander.orientation) % (2 * Math.PI));
+  if(lander.position.y > platform.position.y && (standardAngle < (Math.PI / 6) || Math.abs(standardAngle - (2* Math.PI) < (Math.PI / 6)))) {
+    lander.physics.velocity.set(0, 0, 0);
+    lander.physics.applyCenterOfMassForce(new Vec3(0, 2 * lander.physics.mass * 9.8, 0));
+    return;
+  }
+
+  lander.boooooom();
+};
+
 var diamondsCollisionWithLanderAction = function(diamond, lander) {
   if(!lander.diamonds) {
     lander.diamonds = 0;
@@ -14,6 +46,27 @@ var collidesWithLanderFn = function(obj, collisionAction) {
 
     if(dist < radiusSums && obj.shouldDisplay()) {
       obj.collisionWithLanderAction(obj, lander);
+    }
+  };
+
+  obj.collisionWithLanderAction = collisionAction;
+};
+
+var rectangleCollidesWithLanderFn = function(obj, collisionAction) {
+  var width = 3;
+  var height = 1;
+  obj.collidesWithLander = function(lander) {
+
+    // Check if we're above/below
+    if(lander.position.x > (obj.position.x - width - lander.bounds.radius) &&
+       lander.position.x < (obj.position.x + width + lander.bounds.radius)) {
+
+      // Then check to see if we hit it
+      if(lander.position.y < (obj.position.y + height + lander.bounds.radius) &&
+         lander.position.y > (obj.position.y - height - lander.bounds.radius)) {
+
+        obj.collisionWithLanderAction(obj, lander);
+      }
     }
   };
 

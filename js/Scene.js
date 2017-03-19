@@ -31,6 +31,14 @@ var Scene = function(gl, output) {
 
   material = new Material(gl, program);
   material.colorTexture.set(
+    new Texture2D(gl, 'img/boom.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.lander.boooooom = landerExplosion(this, this.lander, mesh);
+
+  material = new Material(gl, program);
+  material.colorTexture.set(
     new Texture2D(gl, 'img/afterburner.png'));
 
   mesh = new Mesh(quadGeometry, material);
@@ -68,6 +76,7 @@ var Scene = function(gl, output) {
   this.platform = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.platform.physics.position.set(10,0,0);
   this.platform.disableAllEnvironmentForces();
+  rectangleCollidesWithLanderFn(this.platform, platformCollisionWithLanderAction);
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -134,7 +143,8 @@ var Scene = function(gl, output) {
 
   this.camera = new OrthoCamera();
 
-  this.physicsWorld = new PhysicsWorld(this.gameObjects);
+  this.physicsWorld = new PhysicsWorld(this);
+  this.physicsWorld.initialize();
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -176,9 +186,6 @@ Scene.prototype.update = function(gl, keysPressed) {
       obj.keyActions(obj, keysPressed, dt, this);
     }
 
-    if(obj.collidesWithLander) {
-      obj.collidesWithLander(this.lander);
-    }
   }
 
   this.camera.position.set(this.lander.position.x, this.lander.position.y);

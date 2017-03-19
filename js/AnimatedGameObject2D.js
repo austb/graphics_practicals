@@ -7,6 +7,7 @@ var AnimatedGameObject2D = (function() {
       spriteOffset: {x: 0, y: 0},
       spriteDimensions: {x: 8, y: 1},
       display: true,
+      animationRate: ANIM_RATE,
     };
 
     for(var attr in obj) {
@@ -48,21 +49,20 @@ var AnimatedGameObject2D = (function() {
   };
 
   AnimatedGameObject2D.prototype.changeSprite = function() {
-    this.opts.spriteOffset.x += 1;
+    this.opts.spriteOffset.x -= 1;
 
-    if(this.opts.spriteOffset.x == this.opts.spriteDimensions.x) {
+    if(this.opts.spriteOffset.x == -this.opts.spriteDimensions.x) {
       this.opts.spriteOffset.x = 0;
-      this.opts.spriteOffset.y = (this.opts.spriteOffset.y + 1) % this.opts.spriteDimensions.y;
+      this.opts.spriteOffset.y = (this.opts.spriteOffset.y - 1) % -this.opts.spriteDimensions.y;
     }
 
     this.timeSinceLastSpriteChange = 0;
-    this.setTextureMat4();
   };
 
   AnimatedGameObject2D.prototype.move = function(dt) {
     this.timeSinceLastSpriteChange += dt;
 
-    if(this.timeSinceLastSpriteChange >= ANIM_RATE) {
+    if(this.timeSinceLastSpriteChange >= this.opts.animationRate) {
       this.changeSprite();
     }
 
@@ -77,9 +77,14 @@ var AnimatedGameObject2D = (function() {
     Material.shared.textureProjMatrix.set(samplerMat);
   };
 
-  AnimatedGameObject2D.prototype.scheduleRemoval = function() {
-    this.opts.display = false;
-    this.removeAtTime = new Date().getTime();
+  AnimatedGameObject2D.prototype.scheduleRemoval = function(timeOffset) {
+
+    if(timeOffset) {
+      this.removeAtTime = new Date().getTime() + timeOffset;
+    } else {
+      this.opts.display = false;
+      this.removeAtTime = new Date().getTime();
+    }
   };
 
   AnimatedGameObject2D.prototype.shouldDisplay = function() {
