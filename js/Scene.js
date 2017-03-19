@@ -162,6 +162,10 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   this.physicsWorld.update(dt);
 
+  if(keysPressed.K) {
+    AVERAGE_DIAMOND_CREATION_RATE = 0.4;
+  }
+
   var obj, i;
   for(i = 0; i < this.gameObjects.length; i++) {
     obj = this.gameObjects[i];
