@@ -98,8 +98,11 @@ var Scene = function(gl, output) {
     return function() {
       var diamond = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
 
-      var x = (Math.random() * 50) - 25;
-      var y = (Math.random() * 25) + 25;
+      var landerX = scene.lander.position.x;
+      var landerY = scene.lander.position.y;
+
+      var x = landerX + (Math.random() * 50) - 25;
+      var y = landerY + (Math.random() * 25) + 25;
       diamond.physics.position.set(x, y, 0);
       diamond.bounds = {
         radius: 0.8
@@ -173,8 +176,6 @@ Scene.prototype.update = function(gl, keysPressed) {
       obj.collidesWithLander(this.lander);
     }
   }
-
-  // this.lander.collidesWith(this.diamond);
 
   this.camera.position.set(this.lander.position.x, this.lander.position.y);
   this.camera.updateViewProjMatrix();
