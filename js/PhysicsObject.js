@@ -70,7 +70,7 @@ var PhysicsObject = (function() {
   PhysicsObject.prototype.dragForce = function() {
     if(this.opts.dragEnabled) {
       this.applyCenterOfMassForce(this.velocity.times(-1 * this.mass * this.opts.dragFactor));
-      this.applyTorque(new Vec3(this.angularVelocity.z * this.mass, 0.0, 0.0), new Vec3(0.0, 0.5, 0.0));
+      this.applyTorque(new Vec3(this.opts.dragFactor * this.angularVelocity.z * this.mass, 0.0, 0.0), new Vec3(0.0, 0.5, 0.0));
     }
   };
 

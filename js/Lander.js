@@ -1,3 +1,25 @@
+var diamondsCollisionWithLanderAction = function(diamond, lander) {
+  if(!lander.diamonds) {
+    lander.diamonds = 0;
+  }
+
+  diamond.scheduleRemoval();
+  lander.diamonds++;
+};
+
+var collidesWithLanderFn = function(obj, collisionAction) {
+  obj.collidesWithLander = function(lander) {
+    var dist = lander.position.minus(obj.position).length();
+    var radiusSums = lander.bounds.radius + obj.bounds.radius;
+
+    if(dist < radiusSums && obj.shouldDisplay()) {
+      obj.collisionWithLanderAction(obj, lander);
+    }
+  };
+
+  obj.collisionWithLanderAction = collisionAction;
+};
+
 var landerActions = function(lander, keysPressed) {
 
   var latAccel = 30.0 * lander.physics.mass;
@@ -28,13 +50,12 @@ var landerActions = function(lander, keysPressed) {
 };
 
 var afterBurnerActions = function(key) {
-  var plasmaCreationRate = 0.005;
+  var plasmaCreationRate = 0.002;
   return function(burner, keysPressed, dt, scene) {
     if(keysPressed[key]) {
       burner.opts.display = true;
 
       var numberOfPlasmas = Math.floor(dt / plasmaCreationRate);
-      console.log(numberOfPlasmas);
       for(var i = 0; i < numberOfPlasmas; i++) {
         scene.newPlasma(this);
       }
@@ -45,7 +66,6 @@ var afterBurnerActions = function(key) {
 };
 
 var newPlasmaExhaustFn = function(scene, mesh) {
-  var plasmaId = 0;
   return function(burner) {
     var newObj = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
     newObj.physics.opts.affectedByGravity = false;
@@ -58,20 +78,8 @@ var newPlasmaExhaustFn = function(scene, mesh) {
     newObj.physics.position.set(scene.lander.position.plus(rotatedX, rotatedY, 0.0));
     newObj.physics.velocity.set(Math.random() * 2, 2 * Math.random(), 0.0);
     newObj.scale.set(0.10, 0.10, 0.10);
-
-    newObj.plasmaId = plasmaId;
-    plasmaId++;
+    newObj.removeAtTime = scene.timeAtLastFrame + 300;
 
     scene.gameObjects.push(newObj);
-
-    setTimeout(
-      function(){
-        for(var i = scene.gameObjects.length - 1; i >= 0; i--) {
-          if(scene.gameObjects[i] === newObj) {
-            scene.gameObjects.splice(i, 1);
-            break;
-          }
-        }
-      }, 300);
   };
 };

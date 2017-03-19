@@ -1,7 +1,10 @@
+var AVERAGE_DIAMOND_CREATION_RATE = 2.500;
+
 var Scene = function(gl, output) {
   this.gl = gl;
 
   this.timeAtLastFrame = new Date().getTime();
+  this.diamondCreationCounter = AVERAGE_DIAMOND_CREATION_RATE;
 
   // Load shaders and construct the program
   var vertexShader = new Shader(gl, gl.VERTEX_SHADER, "dragon_vs.essl");
@@ -22,6 +25,9 @@ var Scene = function(gl, output) {
   // Create an animatable subclass of GameObject2D
   this.lander = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.lander.keyActions = landerActions;
+  this.lander.bounds = {
+    radius: 0.9
+  };
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -51,22 +57,69 @@ var Scene = function(gl, output) {
   this.afterburner3.parent = this.lander;
   this.afterburner3.keyActions = afterBurnerActions("D");
 
+
+
   material = new Material(gl, program);
   material.colorTexture.set(
-    new Texture2D(gl, 'img/jovian.png'));
+    new Texture2D(gl, 'img/platform.png'));
 
   mesh = new Mesh(quadGeometry, material);
 
-  this.jovian = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 10, y: 14}});
-  this.jovian.disableAllEnvironmentForces();
-  this.jovian.scale.set(1,1,1);
+  this.platform = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.platform.physics.position.set(10,0,0);
+  this.platform.disableAllEnvironmentForces();
+
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/platformend.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.platformEndLeft = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.platformEndLeft.physics.position.set(-2.0, 0, 0);
+  this.platformEndLeft.parent = this.platform;
+  this.platformEndLeft.disableAllEnvironmentForces();
+
+  this.platformEndRight = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.platformEndRight.physics.position.set(2.0, 0, 0);
+  this.platformEndRight.parent = this.platform;
+  this.platformEndRight.scale.set(-1, 1, 1);
+  this.platformEndRight.disableAllEnvironmentForces();
+
+
+
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/diamond.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.newDiamond = (function(scene, mesh) {
+    return function() {
+      var diamond = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+
+      var x = (Math.random() * 50) - 25;
+      var y = (Math.random() * 25) + 25;
+      diamond.physics.position.set(x, y, 0);
+      diamond.bounds = {
+        radius: 0.8
+      };
+      collidesWithLanderFn(diamond, diamondsCollisionWithLanderAction);
+
+      scene.gameObjects.push(diamond);
+    };
+  })(this, mesh);
+
 
   this.gameObjects = [];
   this.gameObjects.push(this.lander);
   this.gameObjects.push(this.afterburner);
   this.gameObjects.push(this.afterburner2);
   this.gameObjects.push(this.afterburner3);
-  // this.gameObjects.push(this.jovian);
+
+  this.gameObjects.push(this.platform);
+  this.gameObjects.push(this.platformEndLeft);
+  this.gameObjects.push(this.platformEndRight);
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -79,7 +132,6 @@ var Scene = function(gl, output) {
   this.camera = new OrthoCamera();
 
   this.physicsWorld = new PhysicsWorld(this.gameObjects);
-  this.physicsWorld.opts.gravityEnabled = false;
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -97,6 +149,13 @@ Scene.prototype.update = function(gl, keysPressed) {
   var timeAtThisFrame = new Date().getTime();
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
+  this.diamondCreationCounter -= dt;
+
+  if(this.diamondCreationCounter <= 0) {
+    this.newDiamond(this);
+
+    this.diamondCreationCounter = AVERAGE_DIAMOND_CREATION_RATE;
+  }
 
   this.physicsWorld.update(dt);
 
@@ -109,16 +168,27 @@ Scene.prototype.update = function(gl, keysPressed) {
     if(obj.keyActions) {
       obj.keyActions(obj, keysPressed, dt, this);
     }
+
+    if(obj.collidesWithLander) {
+      obj.collidesWithLander(this.lander);
+    }
   }
+
+  // this.lander.collidesWith(this.diamond);
+
+  this.camera.position.set(this.lander.position.x, this.lander.position.y);
+  this.camera.updateViewProjMatrix();
 
   for(i = 0; i < this.gameObjects.length; i++) {
     obj = this.gameObjects[i];
 
-    if(obj.shouldDisplayObject()) {
+    if(obj.removeAtTime < timeAtThisFrame) {
+      this.gameObjects.splice(i, 1);
+      i--;
+    } else if(obj.shouldDisplay()) {
       obj.updateModelTransformation();
       obj.setTextureMat4();
       obj.draw(this.camera);
     }
   }
-
 };

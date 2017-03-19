@@ -77,7 +77,12 @@ var AnimatedGameObject2D = (function() {
     Material.shared.textureProjMatrix.set(samplerMat);
   };
 
-  AnimatedGameObject2D.prototype.shouldDisplayObject = function() {
+  AnimatedGameObject2D.prototype.scheduleRemoval = function() {
+    this.opts.display = false;
+    this.removeAtTime = new Date().getTime();
+  };
+
+  AnimatedGameObject2D.prototype.shouldDisplay = function() {
     return this.opts.display;
   };
 
