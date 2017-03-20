@@ -1,49 +1,58 @@
 * {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-    position: absolute;
-    overflow: none;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
+  position: absolute;
+  overflow: none;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
 }
- 
+
 #container {
-    position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-    overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
 }
 
 #overlay {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    z-index: 20;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 20;
 }
 
 #canvas {
-    position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-    z-index: 10;
-    overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+  overflow: hidden;
 }
  
 .floating-div {
-    position: absolute;
+  position: absolute;
+}
+
+#diamond-counter {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  z-index: 11;
+  font-size: 20px;
 }

@@ -21,9 +21,14 @@ var landerExplosion = function(scene, lander, mesh) {
 var platformCollisionWithLanderAction = function(platform, lander) {
   // Land if above and upright
   var standardAngle =  (Math.abs(lander.orientation) % (2 * Math.PI));
-  if(lander.position.y > platform.position.y && (standardAngle < (Math.PI / 6) || Math.abs(standardAngle - (2* Math.PI) < (Math.PI / 6)))) {
+  if(lander.position.y > platform.position.y
+      && (standardAngle < (Math.PI / 6)
+          || Math.abs(standardAngle - (2* Math.PI)) < (Math.PI / 6))
+      && lander.physics.velocity.length() < 4.0) {
+
     lander.physics.velocity.set(0, 0, 0);
-    lander.physics.applyCenterOfMassForce(new Vec3(0, 2 * lander.physics.mass * 9.8, 0));
+    lander.physics.applyCenterOfMassForce(new Vec3(0, lander.physics.mass * 9.8, 0));
+
     return;
   }
 
@@ -108,7 +113,8 @@ var afterBurnerActions = function(key) {
     if(keysPressed[key]) {
       burner.opts.display = true;
 
-      var numberOfPlasmas = Math.floor(dt / plasmaCreationRate);
+      // var numberOfPlasmas = Math.floor(dt / plasmaCreationRate);
+      numberOfPlasmas = 1;
       for(var i = 0; i < numberOfPlasmas; i++) {
         scene.newPlasma(this);
       }
@@ -116,6 +122,11 @@ var afterBurnerActions = function(key) {
       burner.opts.display = false;
     }
   };
+};
+
+var plasmaLifetime = 300;
+var plasmaFadeOutFunction = function(plasma, dt) {
+  plasma.opts.transparency -= (dt / (plasmaLifetime / 1000));
 };
 
 var newPlasmaExhaustFn = function(scene, mesh) {
@@ -129,9 +140,10 @@ var newPlasmaExhaustFn = function(scene, mesh) {
     var rotatedX = (Math.cos(theta) * x) - (Math.sin(theta) * y);
     var rotatedY = (Math.sin(theta) * x) + (Math.cos(theta) * y);
     newObj.physics.position.set(scene.lander.position.plus(rotatedX, rotatedY, 0.0));
-    newObj.physics.velocity.set(Math.random() * 2, 2 * Math.random(), 0.0);
-    newObj.scale.set(0.10, 0.10, 0.10);
-    newObj.removeAtTime = scene.timeAtLastFrame + 300;
+    newObj.physics.velocity.set(Math.random() * 2 - 1, 2 * Math.random() - 1, 0.0);
+    newObj.scale.set(0.060, 0.060, 0.060);
+    newObj.removeAtTime = scene.timeAtLastFrame + plasmaLifetime;
+    newObj.supplementalMove = plasmaFadeOutFunction;
 
     scene.gameObjects.push(newObj);
   };

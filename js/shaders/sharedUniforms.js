@@ -3,5 +3,6 @@ Material.shared = {
   modelMatrixInverse : false,
   modelViewProjMatrix : false,
   textureProjMatrix : false,
+  uAlpha: false,
   rayDirMatrix : false,
 };

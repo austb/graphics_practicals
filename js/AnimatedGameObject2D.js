@@ -8,6 +8,7 @@ var AnimatedGameObject2D = (function() {
       spriteDimensions: {x: 8, y: 1},
       display: true,
       animationRate: ANIM_RATE,
+      transparency: 1.0,
     };
 
     for(var attr in obj) {
@@ -68,6 +69,10 @@ var AnimatedGameObject2D = (function() {
 
     this.physics.move(dt);
 
+    if(this.supplementalMove) {
+      this.supplementalMove(this, dt);
+    }
+
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
@@ -75,6 +80,8 @@ var AnimatedGameObject2D = (function() {
       translate(this.opts.spriteOffset);
     samplerMat.invert();
     Material.shared.textureProjMatrix.set(samplerMat);
+
+    Material.shared.uAlpha.set(this.opts.transparency);
   };
 
   AnimatedGameObject2D.prototype.scheduleRemoval = function(timeOffset) {
