@@ -4,7 +4,6 @@ var AVERAGE_FIREBALL_CREATION_RATE = 1.0;
 var Scene = function(gl, output) {
   this.gl = gl;
 
-  this.timeAtLastFrame = new Date().getTime();
   this.diamondCreationCounter = AVERAGE_DIAMOND_CREATION_RATE;
   this.fireballCreationCounter = AVERAGE_FIREBALL_CREATION_RATE;
 
@@ -198,6 +197,9 @@ var Scene = function(gl, output) {
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
+  if(!this.timeAtLastFrame) {
+    this.timeAtLastFrame = new Date().getTime();
+  }
   // set clear color (part of the OpenGL render state)
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   // clear the screen
