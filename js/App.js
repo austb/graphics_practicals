@@ -56,13 +56,21 @@ App.prototype.update = function() {
 };
 
 App.prototype.updateAspectRatio = function() {
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
-    this.gl.viewport(0, 0,
-      this.canvas.width, this.canvas.height);
-    this.scene.camera.setAspectRatio(
-      this.canvas.clientWidth /
-      this.canvas.clientHeight );
+  this.canvas.width = this.canvas.clientWidth;
+  this.canvas.height = this.canvas.clientHeight;
+  this.gl.viewport(0, 0,
+    this.canvas.width, this.canvas.height);
+
+  var width = this.canvas.width / 5;
+  var height = this.canvas.height / 5;
+  this.scene.miniMapViewport = [ 4 * width, 0, width, height];
+
+  this.scene.diamondScoreViewport = [this.canvas.width - 60, this.canvas.height - 40, 30, 30];
+
+  this.scene.camera.setAspectRatio(
+    this.canvas.clientWidth /
+    this.canvas.clientHeight );
+
 };
 
 // entry point from HTML

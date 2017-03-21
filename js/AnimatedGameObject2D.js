@@ -31,6 +31,10 @@ var AnimatedGameObject2D = (function() {
     }
 
     this.opts = mergeDefaults(opts);
+    this.opts.limitDimensions = {
+      x: this.opts.spriteDimensions.x,
+      y: this.opts.spriteDimensions.y
+    };
 
     this.physics = new PhysicsObject(this);
 
@@ -52,9 +56,9 @@ var AnimatedGameObject2D = (function() {
   AnimatedGameObject2D.prototype.changeSprite = function() {
     this.opts.spriteOffset.x -= 1;
 
-    if(this.opts.spriteOffset.x == -this.opts.spriteDimensions.x) {
+    if(this.opts.spriteOffset.x == -this.opts.limitDimensions.x) {
       this.opts.spriteOffset.x = 0;
-      this.opts.spriteOffset.y = (this.opts.spriteOffset.y - 1) % -this.opts.spriteDimensions.y;
+      this.opts.spriteOffset.y = (this.opts.spriteOffset.y - 1) % -this.opts.limitDimensions.y;
     }
 
     this.timeSinceLastSpriteChange = 0;

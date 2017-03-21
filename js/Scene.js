@@ -1,5 +1,5 @@
 var AVERAGE_DIAMOND_CREATION_RATE = 2.500;
-var AVERAGE_FIREBALL_CREATION_RATE = 1.0;
+var AVERAGE_FIREBALL_CREATION_RATE = 2.0;
 
 var Scene = function(gl, output) {
   this.gl = gl;
@@ -97,6 +97,20 @@ var Scene = function(gl, output) {
   this.platformEndRight.scale.set(-1, 1, 1);
   this.platformEndRight.disableAllEnvironmentForces();
 
+  material = new Material(gl, program);
+  material.colorTexture.set(
+    new Texture2D(gl, 'img/jovian.png'));
+
+  mesh = new Mesh(quadGeometry, material);
+
+  this.jovian = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 10, y: 14}});
+  this.jovian.physics.position.set(0.0, 1.5, 0);
+  this.jovian.scale.set(0.5, 0.5, 0.5);
+  this.jovian.opts.animationRate = 0.15;
+  this.jovian.opts.limitDimensions = {x: 10, y: 1};
+  this.jovian.parent = this.platform;
+  this.jovian.disableAllEnvironmentForces();
+
 
 
   material = new Material(gl, program);
@@ -125,6 +139,9 @@ var Scene = function(gl, output) {
       scene.gameObjects.push(diamond);
     };
   })(this, mesh);
+
+  this.diamondScoreIcon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.diamondScoreIcon.disableAllEnvironmentForces();
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -181,6 +198,7 @@ var Scene = function(gl, output) {
   this.gameObjects.push(this.platform);
   this.gameObjects.push(this.platformEndLeft);
   this.gameObjects.push(this.platformEndRight);
+  this.gameObjects.push(this.jovian);
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -253,10 +271,57 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.camera.position.set(this.lander.position.x, this.lander.position.y);
   this.camera.updateViewProjMatrix();
 
+  this.drawObjects();
+
+  if(this.miniMapViewport) {
+    var x0 = this.miniMapViewport[0];
+    var y0 = this.miniMapViewport[1];
+    var width = this.miniMapViewport[2];
+    var height = this.miniMapViewport[3];
+
+    this.camera.setAspectRatio(width / height);
+
+    // Clear the minimap viewport
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(x0, y0, width, height);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.disable(gl.SCISSOR_TEST);
+
+    // Draw the minimap
+    gl.viewport(x0, y0, width, height);
+    this.drawObjects();
+
+  }
+
+  if(this.diamondScoreIcon && this.diamondScoreViewport) {
+    var x = this.diamondScoreViewport[0];
+    var y = this.diamondScoreViewport[1];
+    var idth = this.diamondScoreViewport[2];
+    var eight = this.diamondScoreViewport[3];
+
+    var cam = new OrthoCamera();
+    // cam.windowSize = new Vec2(1, 1);
+    cam.setAspectRatio(idth / eight);
+
+    // Draw the diamond
+    gl.viewport(x, y, idth, eight);
+    this.diamondScoreIcon.scale.set(10, 10, 1);
+    this.diamondScoreIcon.updateModelTransformation();
+    this.diamondScoreIcon.setTextureMat4();
+    this.diamondScoreIcon.draw(cam);
+
+  }
+
+  // Reset viewport
+  app.updateAspectRatio();
+};
+
+
+Scene.prototype.drawObjects = function() {
   for(i = 0; i < this.gameObjects.length; i++) {
     obj = this.gameObjects[i];
 
-    if(obj.removeAtTime < timeAtThisFrame || (obj.parent && obj.parent.removeAtTime < timeAtThisFrame)) {
+    if(obj.removeAtTime < this.timeAtLastFrame|| (obj.parent && obj.parent.removeAtTime < this.timeAtLastFrame)) {
       this.gameObjects.splice(i, 1);
       i--;
     } else if(obj.shouldDisplay()) {
