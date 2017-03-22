@@ -7,7 +7,6 @@ var landerExplosion = function(scene, lander, mesh) {
 
       scene.explosion = explosion;
 
-      var now = new Date().getTime();
       lander.scheduleRemoval();
 
       explosion.physics.position.set(lander.position);
@@ -21,13 +20,24 @@ var landerExplosion = function(scene, lander, mesh) {
 var platformCollisionWithLanderAction = function(platform, lander) {
   // Land if above and upright
   var standardAngle =  (Math.abs(lander.orientation) % (2 * Math.PI));
-  if(lander.position.y > platform.position.y
+  var objPos = lander.position;
+  if(lander.parent) {
+    objPos.add(lander.parent.pos);
+  }
+
+  if(!lander.boooooom || (objPos.y > platform.position.y
       && (standardAngle < (Math.PI / 6)
           || Math.abs(standardAngle - (2* Math.PI)) < (Math.PI / 6))
-      && lander.physics.velocity.length() < 4.0) {
+      && lander.physics.velocity.length() < 4.0)) {
 
     lander.physics.velocity.set(0, 0, 0);
     lander.physics.applyCenterOfMassForce(new Vec3(0, lander.physics.mass * 9.8, 0));
+
+    if(lander.activateShield) {
+      lander.activateShield();
+    } else {
+      console.log("a jovian!");
+    }
 
     return;
   }
@@ -36,17 +46,21 @@ var platformCollisionWithLanderAction = function(platform, lander) {
 };
 
 var diamondsCollisionWithLanderAction = function(diamond, lander) {
-  if(!lander.diamonds) {
-    lander.diamonds = 0;
+  if(!lander.shield.shouldDisplay()) {
+    diamond.scheduleRemoval();
+    lander.diamonds++;
   }
-
-  diamond.scheduleRemoval();
-  lander.diamonds++;
 };
 
 var collidesWithLanderFn = function(obj, collisionAction) {
   obj.collidesWithLander = function(lander) {
-    var dist = lander.position.minus(obj.position).length();
+    var objPos = obj.position;
+
+    if(obj.parent) {
+      objPos.add(obj.parent.position);
+    }
+
+    var dist = lander.position.minus(objPos).length();
     var radiusSums = lander.bounds.radius + obj.bounds.radius;
 
     if(dist < radiusSums && obj.shouldDisplay()) {
@@ -58,9 +72,13 @@ var collidesWithLanderFn = function(obj, collisionAction) {
 };
 
 var rectangleCollidesWithLanderFn = function(obj, collisionAction) {
-  var width = 3;
+  var width = 1;
   var height = 1;
   obj.collidesWithLander = function(lander) {
+    var objPos = lander.position;
+    if(lander.parent) {
+      objPos.add(lander.parent.position);
+    }
 
     // Check if we're above/below
     if(lander.position.x > (obj.position.x - width - lander.bounds.radius) &&
@@ -87,6 +105,8 @@ var landerActions = function(lander, keysPressed) {
                  latAccel * Math.sin(lander.orientation),
                  0.0),
       new Vec3(0.5 * Math.sin(-lander.orientation), 0.5 * Math.cos(lander.orientation), 0.0));
+
+    lander.disableShield();
   }
 
   if(keysPressed.W) {
@@ -95,6 +115,8 @@ var landerActions = function(lander, keysPressed) {
        new Vec3(accel * Math.sin(-lander.orientation),
                 accel * Math.cos(lander.orientation),
                 0.0));
+
+    lander.disableShield();
   }
 
   if(keysPressed.A) {
@@ -104,7 +126,10 @@ var landerActions = function(lander, keysPressed) {
                latAccel * Math.sin(lander.orientation),
                0.0),
       new Vec3(0.5 * Math.sin(-lander.orientation), 0.5 * Math.cos(lander.orientation), 0.0));
+
+    lander.disableShield();
   }
+
 };
 
 var afterBurnerActions = function(key) {

@@ -37,6 +37,8 @@ var Scene = function(gl, output) {
 
   mesh = new Mesh(quadGeometry, material);
 
+  this.explosionMesh = mesh;
+
   this.lander.boooooom = landerExplosion(this, this.lander, mesh);
 
   material = new Material(gl, program);
@@ -75,10 +77,15 @@ var Scene = function(gl, output) {
 
   mesh = new Mesh(quadGeometry, material);
 
-  this.platform = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.platform.physics.position.set(10,0,0);
-  this.platform.disableAllEnvironmentForces();
-  rectangleCollidesWithLanderFn(this.platform, platformCollisionWithLanderAction);
+  this.platformCL = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.platformCL.physics.position.set(10,0,0);
+  this.platformCL.disableAllEnvironmentForces();
+  rectangleCollidesWithLanderFn(this.platformCL, platformCollisionWithLanderAction);
+
+  this.platformCR = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.platformCR.physics.position.set(12,0,0);
+  this.platformCR.disableAllEnvironmentForces();
+  rectangleCollidesWithLanderFn(this.platformCR, platformCollisionWithLanderAction);
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -88,14 +95,27 @@ var Scene = function(gl, output) {
 
   this.platformEndLeft = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.platformEndLeft.physics.position.set(-2.0, 0, 0);
-  this.platformEndLeft.parent = this.platform;
+  this.platformEndLeft.parent = this.platformCL;
   this.platformEndLeft.disableAllEnvironmentForces();
+  this.platformEndLeft.bounds = {
+    radius: 0.8
+  };
+  collidesWithLanderFn(this.platformEndLeft, platformCollisionWithLanderAction);
 
   this.platformEndRight = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.platformEndRight.physics.position.set(2.0, 0, 0);
-  this.platformEndRight.parent = this.platform;
+  this.platformEndRight.parent = this.platformCR;
   this.platformEndRight.scale.set(-1, 1, 1);
   this.platformEndRight.disableAllEnvironmentForces();
+  this.platformEndRight.bounds = {
+    radius: 0.8
+  };
+  collidesWithLanderFn(this.platformEndRight, platformCollisionWithLanderAction);
+
+  this.platformCL.collidesWithJovian = true;
+  this.platformCR.collidesWithJovian = true;
+  this.platformEndLeft.collidesWithJovian = true;
+  this.platformEndRight.collidesWithJovian = true;
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -104,14 +124,14 @@ var Scene = function(gl, output) {
   mesh = new Mesh(quadGeometry, material);
 
   this.jovian = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 10, y: 14}});
-  this.jovian.physics.position.set(0.0, 1.5, 0);
+  this.jovian.physics.position.set(0.0, 4.5, 0);
   this.jovian.scale.set(0.5, 0.5, 0.5);
   this.jovian.opts.animationRate = 0.15;
   this.jovian.opts.limitDimensions = {x: 10, y: 1};
-  this.jovian.parent = this.platform;
-  this.jovian.disableAllEnvironmentForces();
-
-
+  this.jovian.bounds = {
+    radius: 0.5
+  };
+  this.jovian.parent = this.platformCL;
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -149,9 +169,9 @@ var Scene = function(gl, output) {
 
   mesh = new Mesh(quadGeometry, material);
 
-  this.newFireball = (function(scene, mesh) {
+  this.newFireball = (function(scene, meshFireball, meshExplosion) {
     return function() {
-      var fireball = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+      var fireball = new AnimatedGameObject2D(meshFireball, {spriteDimensions: {x: 1, y: 1}});
       fireball.disableAllEnvironmentForces();
 
       var landerX = scene.lander.position.x;
@@ -181,12 +201,24 @@ var Scene = function(gl, output) {
         radius: 1.5
       };
       fireball.physics.apply();
-      collidesWithLanderFn(fireball, this.lander.boooooom);
+
+      fireball.explode = landerExplosion(this, fireball, meshExplosion);
+
+      collidesWithLanderFn(fireball, (function(lander) {
+        return function() {
+          if(!lander.shield.shouldDisplay()) {
+            lander.boooooom();
+          } else {
+            fireball.explode();
+          }
+        };
+      })(this.lander));
+
       fireball.scheduleRemoval(60000);
 
       scene.gameObjects.push(fireball);
     };
-  })(this, mesh);
+  })(this, mesh, this.explosionMesh);
 
 
   this.gameObjects = [];
@@ -195,7 +227,8 @@ var Scene = function(gl, output) {
   this.gameObjects.push(this.afterburner2);
   this.gameObjects.push(this.afterburner3);
 
-  this.gameObjects.push(this.platform);
+  this.gameObjects.push(this.platformCL);
+  this.gameObjects.push(this.platformCR);
   this.gameObjects.push(this.platformEndLeft);
   this.gameObjects.push(this.platformEndRight);
   this.gameObjects.push(this.jovian);
@@ -205,6 +238,22 @@ var Scene = function(gl, output) {
     new Texture2D(gl, 'img/plasma.png'));
 
   mesh = new Mesh(quadGeometry, material);
+
+  this.shield = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
+  this.shield.opts.transparency = 0.2;
+  this.shield.disableAllEnvironmentForces();
+
+  this.shield.parent = this.lander;
+  this.shield.scale.set(this.lander.scale.times(2.5));
+  this.shield.opts.display = false;
+  this.shield.supplementalMove = function(shield, dt) {
+    // Give the shield a quasi-random orientation to hide the plasma sprite
+    shield.physics.orientation = Math.random() -0.5 * 1000;
+  };
+  this.lander.shield = this.shield;
+  this.lander.activateShield = (function (shield) { return function() { shield.opts.display = true; }; })(this.shield);
+  this.lander.disableShield = (function (shield) { return function() { shield.opts.display = false; }; })(this.shield);
+  this.gameObjects.push(this.shield);
 
   this.newPlasma = newPlasmaExhaustFn(this, mesh);
 
@@ -279,7 +328,10 @@ Scene.prototype.update = function(gl, keysPressed) {
     var width = this.miniMapViewport[2];
     var height = this.miniMapViewport[3];
 
-    this.camera.setAspectRatio(width / height);
+
+    var cam = new OrthoCamera();
+    cam.windowSize = this.camera.windowSize.times(2);
+    cam.setAspectRatio(width / height);
 
     // Clear the minimap viewport
     gl.enable(gl.SCISSOR_TEST);
@@ -289,7 +341,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
     // Draw the minimap
     gl.viewport(x0, y0, width, height);
-    this.drawObjects();
+    this.drawObjects(cam);
 
   }
 
@@ -317,7 +369,12 @@ Scene.prototype.update = function(gl, keysPressed) {
 };
 
 
-Scene.prototype.drawObjects = function() {
+Scene.prototype.drawObjects = function(cam) {
+  if(!cam) {
+    cam = this.camera;
+  }
+
+  cam.updateViewProjMatrix();
   for(i = 0; i < this.gameObjects.length; i++) {
     obj = this.gameObjects[i];
 
@@ -327,7 +384,7 @@ Scene.prototype.drawObjects = function() {
     } else if(obj.shouldDisplay()) {
       obj.updateModelTransformation();
       obj.setTextureMat4();
-      obj.draw(this.camera);
+      obj.draw(cam);
     }
   }
 };
