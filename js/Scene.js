@@ -1,5 +1,5 @@
 var AVERAGE_DIAMOND_CREATION_RATE = 2.500;
-var AVERAGE_FIREBALL_CREATION_RATE = 2.0;
+var AVERAGE_FIREBALL_CREATION_RATE = 4.0;
 
 var Scene = function(gl, output) {
   this.gl = gl;
@@ -69,70 +69,6 @@ var Scene = function(gl, output) {
   this.afterburner3.parent = this.lander;
   this.afterburner3.keyActions = afterBurnerActions("D");
 
-
-
-  material = new Material(gl, program);
-  material.colorTexture.set(
-    new Texture2D(gl, 'img/platform.png'));
-
-  mesh = new Mesh(quadGeometry, material);
-
-  this.platformCL = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.platformCL.physics.position.set(10,0,0);
-  this.platformCL.disableAllEnvironmentForces();
-  rectangleCollidesWithLanderFn(this.platformCL, platformCollisionWithLanderAction);
-
-  this.platformCR = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.platformCR.physics.position.set(12,0,0);
-  this.platformCR.disableAllEnvironmentForces();
-  rectangleCollidesWithLanderFn(this.platformCR, platformCollisionWithLanderAction);
-
-  material = new Material(gl, program);
-  material.colorTexture.set(
-    new Texture2D(gl, 'img/platformend.png'));
-
-  mesh = new Mesh(quadGeometry, material);
-
-  this.platformEndLeft = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.platformEndLeft.physics.position.set(-2.0, 0, 0);
-  this.platformEndLeft.parent = this.platformCL;
-  this.platformEndLeft.disableAllEnvironmentForces();
-  this.platformEndLeft.bounds = {
-    radius: 0.8
-  };
-  collidesWithLanderFn(this.platformEndLeft, platformCollisionWithLanderAction);
-
-  this.platformEndRight = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
-  this.platformEndRight.physics.position.set(2.0, 0, 0);
-  this.platformEndRight.parent = this.platformCR;
-  this.platformEndRight.scale.set(-1, 1, 1);
-  this.platformEndRight.disableAllEnvironmentForces();
-  this.platformEndRight.bounds = {
-    radius: 0.8
-  };
-  collidesWithLanderFn(this.platformEndRight, platformCollisionWithLanderAction);
-
-  this.platformCL.collidesWithJovian = true;
-  this.platformCR.collidesWithJovian = true;
-  this.platformEndLeft.collidesWithJovian = true;
-  this.platformEndRight.collidesWithJovian = true;
-
-  material = new Material(gl, program);
-  material.colorTexture.set(
-    new Texture2D(gl, 'img/jovian.png'));
-
-  mesh = new Mesh(quadGeometry, material);
-
-  this.jovian = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 10, y: 14}});
-  this.jovian.physics.position.set(0.0, 4.5, 0);
-  this.jovian.scale.set(0.5, 0.5, 0.5);
-  this.jovian.opts.animationRate = 0.15;
-  this.jovian.opts.limitDimensions = {x: 10, y: 1};
-  this.jovian.bounds = {
-    radius: 0.5
-  };
-  this.jovian.parent = this.platformCL;
-
   material = new Material(gl, program);
   material.colorTexture.set(
     new Texture2D(gl, 'img/diamond.png'));
@@ -154,6 +90,7 @@ var Scene = function(gl, output) {
       diamond.bounds = {
         radius: 0.8
       };
+      diamond.scheduleRemoval(60000);
       collidesWithLanderFn(diamond, diamondsCollisionWithLanderAction);
 
       scene.gameObjects.push(diamond);
@@ -163,7 +100,7 @@ var Scene = function(gl, output) {
   this.diamondScoreIcon = new AnimatedGameObject2D(mesh, {spriteDimensions: {x: 1, y: 1}});
   this.diamondScoreIcon.disableAllEnvironmentForces();
 
-  material = new Material(gl, program);
+  material = new Material(gl, program, quadGeometry);
   material.colorTexture.set(
     new Texture2D(gl, 'img/fireball.png'));
 
@@ -187,8 +124,8 @@ var Scene = function(gl, output) {
 
       var worldAngle = imageAngle + shootAtAngle;
 
-      // var position = new Vec3(shootAtX, shootAtY, 0);
-      var position = new Vec3(shootAtX + -36 * Math.cos(worldAngle + Math.PI / 2), shootAtY + -36 * Math.sin(worldAngle + Math.PI / 2), 0);
+      var dist = -70;
+      var position = new Vec3(shootAtX + dist * Math.cos(worldAngle + Math.PI / 2), shootAtY + dist * Math.sin(worldAngle + Math.PI / 2), 0);
 
       var velocity = new Vec3(10 * Math.cos(worldAngle + Math.PI / 2), 10 * Math.sin(worldAngle + (Math.PI / 2)), 0);
 
@@ -227,11 +164,19 @@ var Scene = function(gl, output) {
   this.gameObjects.push(this.afterburner2);
   this.gameObjects.push(this.afterburner3);
 
-  this.gameObjects.push(this.platformCL);
-  this.gameObjects.push(this.platformCR);
-  this.gameObjects.push(this.platformEndLeft);
-  this.gameObjects.push(this.platformEndRight);
-  this.gameObjects.push(this.jovian);
+  var makePlatormAtPosition = makePlatormAtPositionFn(this, gl, program, quadGeometry);
+  
+  makePlatormAtPosition(new Vec3(11, 0, 0));
+  makePlatormAtPosition(new Vec3(-11, 0, 0));
+  makePlatormAtPosition(new Vec3(0, 15, 0));
+  makePlatormAtPosition(new Vec3(-20, 15, 0));
+  makePlatormAtPosition(new Vec3(20, 15, 0));
+  makePlatormAtPosition(new Vec3(0, -15, 0));
+  makePlatormAtPosition(new Vec3(-20, -15, 0));
+  makePlatormAtPosition(new Vec3(20, -15, 0));
+
+  this.newFireball();
+  this.newDiamond();
 
   material = new Material(gl, program);
   material.colorTexture.set(
@@ -288,13 +233,13 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.fireballCreationCounter -= dt;
 
   if(this.diamondCreationCounter <= 0) {
-    this.newDiamond(this);
+    this.newDiamond();
 
     this.diamondCreationCounter = AVERAGE_DIAMOND_CREATION_RATE;
   }
 
   if(this.fireballCreationCounter <= 0) {
-    this.newFireball(this);
+    this.newFireball();
 
     this.fireballCreationCounter = AVERAGE_FIREBALL_CREATION_RATE;
   }

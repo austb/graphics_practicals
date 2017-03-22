@@ -30,13 +30,17 @@ var platformCollisionWithLanderAction = function(platform, lander) {
           || Math.abs(standardAngle - (2* Math.PI)) < (Math.PI / 6))
       && lander.physics.velocity.length() < 4.0)) {
 
-    lander.physics.velocity.set(0, 0, 0);
+    lander.physics.velocity.y = 0;
     lander.physics.applyCenterOfMassForce(new Vec3(0, lander.physics.mass * 9.8, 0));
 
     if(lander.activateShield) {
       lander.activateShield();
     } else {
-      console.log("a jovian!");
+      lander.onPlatform = platform;
+
+      if(lander.physics.velocity.x === 0.0) {
+        lander.physics.velocity.set(1, 0, 0);
+      }
     }
 
     return;

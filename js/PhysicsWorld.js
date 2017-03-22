@@ -46,7 +46,12 @@ var PhysicsWorld = (function() {
       }
 
       if(obj.collidesWithJovian) {
-        obj.collidesWithLander(this.scene.jovian);
+        for(var j = 0; j < this.gameObjects.length; j++) {
+          var jovian = this.gameObjects[j];
+          if(jovian.isJovian) {
+            obj.collidesWithLander(jovian);
+          }
+        }
       }
     }
   };

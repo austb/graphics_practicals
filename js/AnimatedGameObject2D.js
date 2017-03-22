@@ -80,7 +80,12 @@ var AnimatedGameObject2D = (function() {
   };
 
   AnimatedGameObject2D.prototype.setTextureMat4 = function() {
-    var samplerMat = new Mat4().scale({x: this.opts.spriteDimensions.x, y: this.opts.spriteDimensions.y, z: 1.0}).
+    var flip = 1;
+    if(this.textureFlip) {
+      flip = -1;
+    }
+
+    var samplerMat = new Mat4().scale({x: flip * this.opts.spriteDimensions.x, y: this.opts.spriteDimensions.y, z: 1.0}).
       translate(this.opts.spriteOffset);
     samplerMat.invert();
     Material.shared.textureProjMatrix.set(samplerMat);
