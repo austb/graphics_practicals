@@ -23,6 +23,7 @@ Author - Austin Blatt
 ## Additional Features
 
 While on a platform, the player is surrounded by a shield, which will protect
-the lander from fireballs, and prevent the player from collecting diamonds.
+the lander from fireballs (which explode with the BOOM! animation instead of killing
+the player), and prevent the player from collecting diamonds.
 Moving the lander with W, A, or D will imediately remove the shield.
 
