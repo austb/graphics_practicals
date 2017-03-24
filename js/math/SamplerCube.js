@@ -17,7 +17,7 @@ var SamplerCube = function(textureUnit){
 
 /**
  * @method set
- * @memberof SamplerCube.prototype
+ * @memberof SamplerCube.prototype  
  * @description Assigns a texture.
  * @param {Object | WebGLTexture} texture - A WebGL texture, or any object with the `glTexture` property that stores a WebGL texture.
  */
@@ -27,7 +27,7 @@ SamplerCube.prototype.set = function(texture){
 
 /**
  * @method commit
- * @memberof SamplerCube.prototype
+ * @memberof SamplerCube.prototype  
  * @description Sets the value of the texture unit index to the WebGL samplerCube uniform variable, and binds the texture to the corresponding texture unit.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program

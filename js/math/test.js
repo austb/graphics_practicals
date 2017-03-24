@@ -69,7 +69,7 @@ console.assert( approx(b.dot(c), 12) );
 console.assert( approx(
 	a.setDotProductOfVec3s(new Vec3(1, 2, 3), new Vec3(1, -1, 0)).x,
 	-1) );
-
+	
 console.assert( approx(
 	a.setLengthOfVec3(new Vec3(3, 4, 0)).x,
 	5) );
@@ -92,12 +92,12 @@ for(var i = 0; i<50; i++){
   console.assert(a.x >= -2);
   console.assert(a.x < 100);
   console.assert(a.y >= -3);
-  console.assert(a.y < 300);
+  console.assert(a.y < 300);  
   b.setRandom(34, 35);
   console.assert(b.x >= 34);
   console.assert(b.x < 35);
   console.assert(b.y >= 34);
-  console.assert(b.y < 35);
+  console.assert(b.y < 35);  
   a.clamp(0, 1);
   console.assert(a.x >= 0);
   console.assert(a.x <= 1);
@@ -109,7 +109,7 @@ b.set(1, 4);
 c.set(-3, 3);
 a.set(b).add(c);
 console.assert(a.x === -2);
-console.assert(a.y === 7);
+console.assert(a.y === 7); 
 a = b.plus(c);
 console.assert(a.x === -2);
 console.assert(a.y === 7);
@@ -190,16 +190,16 @@ for(var i = 0; i<50; i++){
   console.assert(a.x >= -2);
   console.assert(a.x < 100);
   console.assert(a.y >= -3);
-  console.assert(a.y < 300);
+  console.assert(a.y < 300);  
   console.assert(a.z >= 0);
-  console.assert(a.z < 1);
+  console.assert(a.z < 1);    
   b.setRandom(34, 35);
   console.assert(b.x >= 34);
   console.assert(b.x < 35);
   console.assert(b.y >= 34);
-  console.assert(b.y < 35);
+  console.assert(b.y < 35);  
   console.assert(b.z >= 34);
-  console.assert(b.z < 35);
+  console.assert(b.z < 35);    
   a.clamp(0, 1);
   console.assert(a.x >= 0);
   console.assert(a.x <= 1);
@@ -211,29 +211,29 @@ b.set(1, 4, 1);
 c.set(-3, 3, 3);
 a.set(b).add(c);
 console.assert(a.x === -2);
-console.assert(a.y === 7);
-console.assert(a.z === 4);
+console.assert(a.y === 7); 
+console.assert(a.z === 4); 
 a = b.plus(c);
 console.assert(a.x === -2);
 console.assert(a.y === 7);
-console.assert(a.z === 4);
+console.assert(a.z === 4); 
 a.setSum(b, c);
 console.assert(a.x === -2);
 console.assert(a.y === 7);
-console.assert(a.z === 4);
+console.assert(a.z === 4); 
 
 a.set(b).sub(c);
 console.assert(a.x === 4);
 console.assert(a.y === 1);
-console.assert(a.z === -2);
+console.assert(a.z === -2); 
 a = b.minus(c);
 console.assert(a.x === 4);
 console.assert(a.y === 1);
-console.assert(a.z === -2);
+console.assert(a.z === -2); 
 a.setDifference(b, c);
 console.assert(a.x === 4);
 console.assert(a.y === 1);
-console.assert(a.z === -2);
+console.assert(a.z === -2); 
 
 a.set(b).mul(c);
 console.assert(a.x === -3);

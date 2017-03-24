@@ -47,12 +47,3 @@
 .floating-div {
   position: absolute;
 }
-
-#diamond-counter {
-  position: absolute;
-  top: 15px;
-  right: 10px;
-  color: white;
-  z-index: 11;
-  font-size: 20px;
-}

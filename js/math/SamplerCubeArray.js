@@ -8,7 +8,7 @@
  * @classdesc Array of 2d cube samplers. May reflect an ESSL array-of-samplerCubes uniform variable.
  * <BR> Individual [SamplerCube]{@link SamplerCube} elements are available through the index operator [].
  * @param {Number} size - The number of SamplerCube elements in the array.
- * @param {Number} baseTextureUnit - The texture unit index of the first element. Other elements are assigned to texture units contiguously.
+ * @param {Number} baseTextureUnit - The texture unit index of the first element. Other elements are assigned to texture units contiguously. 
  * @constructor
  */
 var SamplerCubeArray = function(size, baseTextureUnit){
@@ -25,7 +25,7 @@ var SamplerCubeArray = function(size, baseTextureUnit){
 
 /**
  * @method commit
- * @memberof SamplerCubeArray.prototype
+ * @memberof SamplerCubeArray.prototype  
  * @description Sets the texture unit index of the all samplers in the array, and bind textures set to SamplerCube array elements.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program

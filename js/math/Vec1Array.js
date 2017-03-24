@@ -27,7 +27,7 @@ Vec1Array.prototype.constructor = Vec1Array;
 
 /**
  * @method subarray
- * @memberof Vec1Array.prototype
+ * @memberof Vec1Array.prototype  
  * @description Returns a new Vec1Array object that captures a subrange of the array. The new array is a view on the original data, not a copy.
  * @param {Number} [begin=0] - Element to begin at. The offset is inclusive. The whole array will be cloned if this value is not specified.
  * @param {Number} [end=length] - Element to end at. The offset is exclusive. If not specified, all elements from the one specified by begin to the end of the array are included in the new view.
@@ -89,7 +89,7 @@ Vec1Array.prototype.dotVec3s = function(b, c) {
 
 /**
  * @method dotAllVec2s
- * @memberof Vec1Array.prototype
+ * @memberof Vec1Array.prototype  
  * @description Computes the dot product of two-element vectors from the two argument arrays, in every possible combination, storing the result in this array.
  * First all elements of `b` are paired with the first element in `c`, then with the second element in `c`, and so on.
  * 'a.length == b.length * c.length' is assumed. 'b' or 'c' can be vectors instead of arrays,
@@ -112,7 +112,7 @@ Vec1Array.prototype.dotAllVec2s = function(b, c) {
 
 /**
  * @method dotAllVec3s
- * @memberof Vec1Array.prototype
+ * @memberof Vec1Array.prototype  
  * @description Computes the dot product of three-element vectors from the two argument arrays, in every possible combination, storing the result in this array.
  * First all elements of `b` are paired with the first element in `c`, then with the second element in `c`, and so on.
  * 'a.length == b.length * c.length' is assumed. 'b' or 'c' can be vectors instead of arrays,
@@ -135,7 +135,7 @@ Vec1Array.prototype.dotAllVec3s = function(b, c) {
 
 /**
  * @method dotAllVec4s
- * @memberof Vec1Array.prototype
+ * @memberof Vec1Array.prototype  
  * @description Computes the dot product of three-element vectors from the two argument arrays, in every possible combination, storing the result in this array.
  * First all elements of `b` are paired with the first element in `c`, then with the second element in `c`, and so on.
  * 'a.length == b.length * c.length' is assumed. 'b' or 'c' can be vectors instead of arrays,
@@ -199,4 +199,15 @@ Vec1Array.prototype.lengthOfVec4 = function(b) {
     this.storage[i] = Math.sqrt(b.storage[j] * b.storage[j++] + b.storage[j] * b.storage[j++] + b.storage[j] * b.storage[j++] + b.storage[j] * b.storage[j++]);
   }
   return this;
+};
+
+/**
+ * @method commit
+ * @memberof Vec1Array.prototype  
+ * @description Sets the value of the vector array to a WebGL vec1 array uniform variable.
+ * @param {WebGLRenderingContext} gl - rendering context
+ * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program
+ */
+Vec1Array.prototype.commit = function(gl, uniformLocation){
+  gl.uniform1fv(uniformLocation, this.storage);
 };

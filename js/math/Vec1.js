@@ -14,7 +14,7 @@ var Vec1 = function(u){
    * @name Vec1.prototype#storage
    * @description 1-element typed array for coordinate storage.
    * @type Float32Array
-   */
+   */  
   this.storage = new Float32Array([
     u && u.x || Number(u).valueOf() || 0
   ]);
@@ -22,7 +22,7 @@ var Vec1 = function(u){
 
 /**
  * @method clone
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype 
  * @description Creates a copy.
  * @return {Vec1} A new instance with identical contents.
  */
@@ -44,20 +44,20 @@ Object.defineProperty(Vec1.prototype, 'x', {
 
 /**
  * @method set
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>=</code>. Sets the coordinates from another vector, or number values. Without parameters, sets (0, 0, 0, 1).
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.set = function(u) {
   this.storage[0] = u && u.x || Number(u).valueOf() || 0;
-  return this;
+  return this;  
 };
 
 /**
  * @method random
  * @memberof Vec1
- * @static
+ * @static 
  * @description Return a new {@link Vec1} with random values that to lie between two values, elementwise.
  * @param {Vec1 | Object | Number} [minVal=0] - Specifies the lower end of the random range. If a scalar is given, it applies to all channels.
  * @param {Vec1 | Object | Number} [maxVal=1] - Specifies the upper end of the random range. If a scalar is given, it applies to all channels.
@@ -67,14 +67,14 @@ Vec1.random = function(minVal, maxVal) {
   var result = Object.create(Vec1.prototype);
   result.storage = new Float32Array(1);
   var mina = minVal && minVal.x || Number(minVal).valueOf() || 0;
-  var maxa = maxVal && maxVal.x || Number(maxVal).valueOf() || 1;
+  var maxa = maxVal && ((maxVal.x-1) ||( Number(maxVal).valueOf()-1) || 0) + 1;
   result.storage[0] = Math.random() * (maxa - mina) + mina;
   return result;
 };
 
 /**
  * @method setRandom
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fill the vector with random values that to lie between two further values, elementwise.
  * @param {Vec1 | Object | Number} [minVal=0] - Specifies the lower end of the random range. If a scalar is given, it applies to all channels.
  * @param {Vec1 | Object | Number} [maxVal=1] - Specifies the upper end of the random range. If a scalar is given, it applies to all channels.
@@ -82,9 +82,9 @@ Vec1.random = function(minVal, maxVal) {
  */
 Vec1.prototype.setRandom = function(minVal, maxVal) {
   var mina = minVal && minVal.x || Number(minVal).valueOf() || 0;
-  var maxa = maxVal && maxVal.x || Number(maxVal).valueOf() || 1;
+  var maxa = maxVal && ((maxVal.x-1) ||( Number(maxVal).valueOf()-1) || 0) + 1;
   this.storage[0] = Math.random() * (maxa - mina) + mina;
-  return this;
+  return this;  
 };
 
 /**
@@ -100,7 +100,7 @@ Vec1.prototype.clamp = function(minVal, maxVal) {
   if(this.storage[0] < mina){
     this.storage[0] = mina;
   }
-  var maxa = maxVal && maxVal.x || Number(maxVal).valueOf(0) || 1;
+  var maxa = maxVal && ((maxVal.x-1) || (Number(maxVal).valueOf(0)-1) || 0) + 1;
   if(this.storage[0] > maxa){
     this.storage[0] = maxa;
   }
@@ -109,7 +109,7 @@ Vec1.prototype.clamp = function(minVal, maxVal) {
 
 /**
  * @method setClamped
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Constrains a value to lie between two further values, elementwise, storing the result in this vector.
  * @param {Vec1} b - The value to constrain.
  * @param {Vec1 | Object | Number} [minVal=0] - Specifies the lower end of the range into which to constrain the elements. If a scalar is given, it applies to all channels.
@@ -118,7 +118,7 @@ Vec1.prototype.clamp = function(minVal, maxVal) {
  */
 Vec1.prototype.setClamped = function(b, minVal, maxVal) {
   var mina = minVal && minVal.x || Number(minVal).valueOf(0) || 0;
-  var maxa = maxVal && maxVal.x || Number(maxVal).valueOf(0) || 1;
+  var maxa = maxVal && ((maxVal.x-1) || (Number(maxVal).valueOf(0)-1) || 0) + 1;
   if(b.storage[0] < mina){
     this.storage[0] = mina;
   } else if(b.storage[0] > maxa){
@@ -131,32 +131,32 @@ Vec1.prototype.setClamped = function(b, minVal, maxVal) {
 
 /**
  * @method add
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>+=</code>. Adds another vector to this vector, overwriting the contents with the result.
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.add = function(u) {
   this.storage[0] += u && u.x || Number(u).valueOf() || 0;
-  return this;
+  return this;  
 };
 
 /**
  * @method addScaled
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates <code>+= dt *</code>. Adds another vector, scaled by `dt`, to this vector, overwriting the contents with the result.
- * @param {Number} dt - Scaling factor.
+ * @param {Number} dt - Scaling factor. 
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.addScaled = function(dt, u) {
   this.storage[0] += dt * (u && u.x || Number(u).valueOf() || 0);
-  return this;
+  return this;  
 };
 
 /**
  * @method plus
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>+</code>. Adds this vector and the parameter vector, and returns the result in a new instance.
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} the sum of the two vectors
@@ -170,32 +170,32 @@ Vec1.prototype.plus = function(u) {
 
 /**
  * @method setSum
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Adds the two argument vectors, storing the result in this vector.
  * @param {Vec1} b - Term 1.
- * @param {Vec1} c - Term 2.
+ * @param {Vec1} c - Term 2. 
  * @return {Vec1} this
  */
 Vec1.prototype.setSum = function(b, c) {
   this.storage[0] = b.storage[0] + c.storage[0];
-  return this;
+  return this;  
 };
 
 /**
  * @method sub
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>-=</code>. Subtracts another vector from this vector, overwriting the contents with the result.
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.sub = function(u) {
   this.storage[0] -= u && u.x || Number(u).valueOf() || 0;
-  return this;
+  return this;  
 };
 
 /**
  * @method minus
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>-</code>. Subtracts the parameter vector from this vector, and returns the result in a new instance.
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Vec1} the difference of the two vectors
@@ -209,27 +209,27 @@ Vec1.prototype.minus = function(u) {
 
 /**
  * @method setDifference
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Substracts the second argument vector from the first one, storing the result in this vector.
  * @param {Vec1} b - Minuend.
- * @param {Vec1} c - Subtrahend.
+ * @param {Vec1} c - Subtrahend. 
  * @return {Vec1} this
  */
 Vec1.prototype.setDifference = function(b, c) {
   this.storage[0] = b.storage[0] - c.storage[0];
-  return this;
+  return this;  
 };
 
 /**
  * @method mul
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>*=</code>. Multiplies this vector with another vector elementwise, or scalar, overwriting the contents with the result.
  * @param {Vec1 | Object | Number} [u=1] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.mul = function(u) {
   this.storage[0] *= u && ((u.x - 1) || (Number(u).valueOf()-1) || 0) + 1;
-  return this;
+  return this;  
 };
 
 /**
@@ -248,27 +248,27 @@ Vec1.prototype.times = function(u) {
 
 /**
  * @method setProduct
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Multiplies, elementwise, the two argument vectors, storing the result in this vector.
  * @param {Vec1} b - Factor 1.
- * @param {Vec1} c - Factor 2.
+ * @param {Vec1} c - Factor 2. 
  * @return {Vec1} this
  */
 Vec1.prototype.setProduct = function(b, c) {
   this.storage[0] = b.storage[0] * c.storage[0];
-  return this;
+  return this;  
 };
 
 /**
  * @method div
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Simulates operator <code>/=</code>. Divides, elementwise, this vector with another vector, or scalar, overwriting the contents with the result.
  * @param {Vec1 | Object | Number} [u=1] - Any object (property x), or a numerical value.
  * @return {Vec1} this
  */
 Vec1.prototype.div = function(u) {
   this.storage[0] /= u && ((u.x - 1) || (Number(u).valueOf()-1) || 0) + 1;
-  return this;
+  return this;  
 };
 
 /**
@@ -287,23 +287,23 @@ Vec1.prototype.over = function(u) {
 
 /**
  * @method setQuotient
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Divides, elementwise, the two argument vectors, storing the result in this vector.
  * @param {Vec1} b - Dividend.
- * @param {Vec1} c - Divisor.
+ * @param {Vec1} c - Divisor. 
  * @return {Vec1} this
  */
 Vec1.prototype.setQuotient = function(b, c) {
   this.storage[0] = b.storage[0] / c.storage[0];
-  return this;
+  return this;  
 };
 
 /**
  * @method setScaled
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Scales the vector by a scalar.
  * @param {Vec1} a - Vector to scale.
- * @param {Number} s - Scale factor.
+ * @param {Number} s - Scale factor. 
  * @return {Vec1} this
  */
 Vec1.prototype.setScaled = function(a, s){
@@ -313,7 +313,7 @@ Vec1.prototype.setScaled = function(a, s){
 
 /**
  * @method setScaledByInverse
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Fast. Scales the vector by the reciprocal of scalar.
  * @param {Vec1} a - Vector to scale.
  * @param {Number} s - Scale factor inverse.
@@ -321,18 +321,18 @@ Vec1.prototype.setScaled = function(a, s){
  */
 Vec1.prototype.setScaledByInverse = function(a, s){
   this.storage[0] = a.x / s;
-  return this;
+  return this;  
 };
 
 /**
  * @method dot
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Computes the dot product with another vector.
  * @param {Vec1 | Object | Number} [u=0] - Any object (property x), or a numerical value.
  * @return {Number}
  */
 Vec1.prototype.dot = function(u) {
-  return this.storage[0] * (u && u.x || Number(u).valueOf() || 0);
+  return this.storage[0] * (u && u.x || Number(u).valueOf() || 0); 
 };
 
 /**
@@ -412,7 +412,7 @@ Vec1.prototype.setLengthOfVec4 = function(b) {
 
 /**
  * @method commit
- * @memberof Vec1.prototype
+ * @memberof Vec1.prototype  
  * @description Sets the value of the vector to a WebGL float uniform variable.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program

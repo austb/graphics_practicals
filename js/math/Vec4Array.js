@@ -27,7 +27,7 @@ Vec4Array.prototype.constructor = Vec4Array;
 
 /**
  * @method subarray
- * @memberof Vec4Array.prototype
+ * @memberof Vec4Array.prototype  
  * @description Returns a new Vec4Array object that captures a subrange of the array. The new array is a view on the original data, not a copy.
  * @param {Number} [begin=0] - Element to begin at. The offset is inclusive. The whole array will be cloned if this value is not specified.
  * @param {Number} [end=length] - Element to end at. The offset is exclusive. If not specified, all elements from the one specified by begin to the end of the array are included in the new view.
@@ -41,9 +41,9 @@ Vec4Array.prototype.subarray = function(begin, end){
 
 /**
  * @method normalize
- * @memberof Vec4Array.prototype
+ * @memberof Vec4Array.prototype  
  * @description Fills this vector with the unit length versions of vectors in the argument vector.
- * @param {Vec4Array} b - Array of vectors to normalize. Its length must be identical to this array's length.
+ * @param {Vec4Array} b - Array of vectors to normalize. Its length must be identical to this array's length. 
  * @return {Vec4Array} this
  */
 Vec4Array.prototype.normalize = function(b) {
@@ -65,7 +65,7 @@ Vec4Array.prototype.normalize = function(b) {
  * @method transform
  * @memberof Vec4Array.prototype
  * @description Fills this vector with vectors from the argument vector, transformed by the argument 4x4 matrix. The vectors are cosidered row vectors, multiplied from the right with a matrix laid out in column-major order.
- * @param {Vec4Array} v - Array of vectors to transform. Its length must be identical to this array's length.
+ * @param {Vec4Array} v - Array of vectors to transform. Its length must be identical to this array's length. 
  * @return {Vec4Array} this
  */
 Vec4Array.prototype.transform = function(v, m) {
@@ -91,5 +91,16 @@ Vec4Array.prototype.transform = function(v, m) {
        v.storage[i+2] * m.storage[14] +
        v.storage[i+3] * m.storage[15] ;
   }
-  return this;
+  return this;  
+};
+
+/**
+ * @method commit
+ * @memberof Vec4Array.prototype  
+ * @description Sets the value of the vector array to a WebGL vec4 array uniform variable.
+ * @param {WebGLRenderingContext} gl - rendering context
+ * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program
+ */
+Vec4Array.prototype.commit = function(gl, uniformLocation){
+  gl.uniform4fv(uniformLocation, this.storage);
 };

@@ -88,9 +88,11 @@ var AnimatedGameObject2D = (function() {
     var samplerMat = new Mat4().scale({x: flip * this.opts.spriteDimensions.x, y: this.opts.spriteDimensions.y, z: 1.0}).
       translate(this.opts.spriteOffset);
     samplerMat.invert();
-    Material.shared.textureProjMatrix.set(samplerMat);
 
+    Material.shared.textureProjMatrix.set(samplerMat);
     Material.shared.uAlpha.set(this.opts.transparency);
+    Material.shared.modelMatrix.set(this.modelMatrix);
+    Material.shared.modelMatrixInverse.set(new Mat4(this.modelMatrix).invert());
   };
 
   AnimatedGameObject2D.prototype.scheduleRemoval = function(timeOffset) {

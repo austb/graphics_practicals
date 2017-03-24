@@ -25,7 +25,7 @@ var Sampler2DArray = function(size, baseTextureUnit){
 
 /**
  * @method commit
- * @memberof Sampler2DArray.prototype
+ * @memberof Sampler2DArray.prototype  
  * @description Sets the texture unit index of the all samplers in the array, and bind textures set to Sampler2D array elements.
  * @param {WebGLRenderingContext} gl - rendering context
  * @param {WebGLUniformLocation} uniformLocation - location of the uniform variable in the currently used WebGL program
