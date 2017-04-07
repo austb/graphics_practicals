@@ -26,8 +26,13 @@ var Scene = function(gl, output) {
 
   this.camera = new PerspectiveCamera();
 
+  this.lightDirection = new Vec3(-1, -1, -1);
+
   this.gameObjects = [];
   this.gameObjects.push(this.gameObj);
+
+  this.lightSource = new LightSource(1);
+  this.lightSource.set(0, new Vec3(5, 5, 5), new Vec3(1, 1, 2));
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -67,7 +72,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   this.camera.updateViewMatrix();
   this.gameObj.updateModelTransformation();
-  this.gameObj.draw(this.camera);
+  this.gameObj.draw(this.camera, this.lightSource);
 
   // this.drawObjects();
 };

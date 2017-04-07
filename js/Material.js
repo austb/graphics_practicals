@@ -23,7 +23,31 @@ var Material = function(gl, program) {
         {value: reflectionVariable} );
     }
   });
+
+  // at the end of Material’s constructor
+  return new Proxy(this, {
+    get : function(target, name){
+      if(!(name in target)){
+        console.error(
+          "WARNING: Ignoring attempt" +
+          " to access material property '" +
+          name + "'. Is '" + name +
+          "' an unused uniform?" );
+        return Material.dummy;
+      }
+      return target[name];
+    },
+  });
 };
+
+Material.dummy = new Proxy(new Function(), {
+  get: function(target, name){
+    return Material.dummy;
+  },
+  apply: function(target, thisArg, args){
+    return Material.dummy;
+  },
+});
 
 Material.prototype.commit = function() {
   var gl = this.gl;

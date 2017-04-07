@@ -18,7 +18,7 @@ GameObject2D.prototype.updateModelTransformation =
 
 };
 
-GameObject2D.prototype.draw = function(camera){
+GameObject2D.prototype.draw = function(camera, lightSource){
 
   if(this.parent) {
     Material.shared.modelViewProjMatrix.set().
@@ -30,6 +30,9 @@ GameObject2D.prototype.draw = function(camera){
       mul(this.modelMatrix).
       mul(camera.viewProjMatrix);
   }
+
+  Material.shared.lightPos[0].set(lightSource.lightPosition[0]);
+  Material.shared.lightPowerDensity[0].set(lightSource.lightPowerDensity[0]);
 
   this.mesh.draw();
 };

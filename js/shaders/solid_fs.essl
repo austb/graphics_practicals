@@ -5,14 +5,24 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   uniform mat4 textureProjMatrix;
   uniform float uAlpha;
 
+  // Light
+  uniform vec4 lightPos[1]; // xyz is the direction, w is 0
+  uniform vec4 lightPowerDensity[1]; // w ignored
+
   varying vec2 texCoord;
   varying vec3 worldPos;
   varying vec3 worldNormal;
 
   void main(void) {
+    vec3 lightDirection = normalize(lightPos[0].xyz);
+    highp float cosine = dot(worldNormal, lightDirection);
+
+    if(cosine < 0.0) {
+      cosine = 0.0;
+    }
+
     vec4 scaledTexture = vec4(texCoord, 0.0, 1.0) * textureProjMatrix;
     vec4 textureColor = texture2D(colorTexture, vec2(scaledTexture.x, scaledTexture.y));
-    // gl_FragColor = vec4(textureColor.rgb, textureColor.a * uAlpha);
-    gl_FragColor = vec4(abs(worldNormal), uAlpha);
+    gl_FragColor = vec4(lightPowerDensity[0].xyz * textureColor.rgb * cosine, textureColor.a * uAlpha);
   }
 `;
