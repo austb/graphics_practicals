@@ -7,6 +7,8 @@ var Scene = function(gl, output) {
   this.diamondCreationCounter = AVERAGE_DIAMOND_CREATION_RATE;
   this.fireballCreationCounter = AVERAGE_FIREBALL_CREATION_RATE;
 
+  this.orbitalTheta = 0;
+
   // Load shaders and construct the program
   var vertexShader = new Shader(gl, gl.VERTEX_SHADER, "solid_vs.essl");
   var fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
@@ -26,13 +28,15 @@ var Scene = function(gl, output) {
 
   this.camera = new PerspectiveCamera();
 
-  this.lightDirection = new Vec3(-1, -1, -1);
-
   this.gameObjects = [];
   this.gameObjects.push(this.gameObj);
+  this.gameObj.scale = 0.25;
 
-  this.lightSource = new LightSource(1);
-  this.lightSource.set(0, new Vec3(5, 5, 5), new Vec3(1, 1, 2));
+  this.lightSources = new LightSource(3);
+  this.lightSources.setAmbientLight(new Vec3(0.4, 0.4, 0.4));
+  this.lightSources.setPointLight(0, new Vec3(10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 0), new Vec3(20, 0, 0));
+  this.lightSources.setPointLight(1, new Vec3(10 * Math.sin(this.orbitalTheta), 0, 10 * Math.cos(this.orbitalTheta)), new Vec3(0, 20, 0));
+  this.lightSources.setPointLight(2, new Vec3(0, 10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta)), new Vec3(0, 0, 20));
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -56,7 +60,17 @@ Scene.prototype.update = function(gl, keysPressed) {
   var dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
 
-  // var obj, i;
+  this.orbitalTheta += dt * (Math.PI / 4);
+
+  var i;
+  for(i = 0; i < this.lightSources.length; i++) {
+
+  }
+
+  this.lightSources.lightPosition[0].set(10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 0, 1);
+  this.lightSources.lightPosition[1].set(10 * Math.sin(this.orbitalTheta), 0, 10 * Math.cos(this.orbitalTheta), 1);
+  this.lightSources.lightPosition[2].set(0, 10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 1);
+  // var obj;
   // for(i = 0; i < this.gameObjects.length; i++) {
   //   obj = this.gameObjects[i];
 
@@ -72,7 +86,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   this.camera.updateViewMatrix();
   this.gameObj.updateModelTransformation();
-  this.gameObj.draw(this.camera, this.lightSource);
+  this.gameObj.draw(this.camera, this.lightSources);
 
   // this.drawObjects();
 };

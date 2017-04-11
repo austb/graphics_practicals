@@ -5,6 +5,7 @@ Material.shared = {
   textureProjMatrix : new Mat4(),
   uAlpha: new Vec1(),
   rayDirMatrix : false,
-  lightPos: new Vec4Array(1),
-  lightPowerDensity: new Vec4Array(1),
+  lightPos: false,
+  lightPowerDensity: false,
+  uAmbientLight: new Vec3(),
 };
