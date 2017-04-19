@@ -32,11 +32,9 @@ var Scene = function(gl, output) {
   this.gameObjects.push(this.gameObj);
   this.gameObj.scale = 0.25;
 
-  this.lightSources = new LightSource(3);
-  this.lightSources.setAmbientLight(new Vec3(0.4, 0.4, 0.4));
-  this.lightSources.setPointLight(0, new Vec3(10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 0), new Vec3(20, 0, 0));
-  this.lightSources.setPointLight(1, new Vec3(10 * Math.sin(this.orbitalTheta), 0, 10 * Math.cos(this.orbitalTheta)), new Vec3(0, 20, 0));
-  this.lightSources.setPointLight(2, new Vec3(0, 10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta)), new Vec3(0, 0, 20));
+  this.lightSources = new LightSource(1);
+  this.lightSources.setAmbientLight(new Vec3(0.2, 0.2, 0.2));
+  this.lightSources.setDirectionalLight(0, (new Vec3(5,5,5)), new Vec3(0.7, 0.7, 0.7));
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -67,9 +65,6 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   }
 
-  this.lightSources.lightPosition[0].set(10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 0, 1);
-  this.lightSources.lightPosition[1].set(10 * Math.sin(this.orbitalTheta), 0, 10 * Math.cos(this.orbitalTheta), 1);
-  this.lightSources.lightPosition[2].set(0, 10 * Math.sin(this.orbitalTheta), 10 * Math.cos(this.orbitalTheta), 1);
   // var obj;
   // for(i = 0; i < this.gameObjects.length; i++) {
   //   obj = this.gameObjects[i];
