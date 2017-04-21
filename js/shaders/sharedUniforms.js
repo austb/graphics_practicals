@@ -4,6 +4,7 @@ Material.shared = {
   modelViewProjMatrix : new Mat4(),
   textureProjMatrix : new Mat4(),
   uAlpha: new Vec1(),
+  uCameraPos: new Vec3(),
   rayDirMatrix : false,
   lightPos: false,
   lightPowerDensity: false,
