@@ -34,7 +34,7 @@ GameObject2D.prototype.draw = function(camera, lightSource){
   Material.shared.uAmbientLight.set(lightSource.ambientLight);
 
   for(var i = 0; i < lightSource.length; i++) {
-    Material.shared.lightPos[i].set(lightSource.lightPosition[i]);
+    Material.shared.lightPos[i].set(lightSource.lightPositionOrDirection[i]);
     Material.shared.lightPowerDensity[i].set(lightSource.lightPowerDensity[i]);
   }
 

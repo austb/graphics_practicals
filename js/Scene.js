@@ -34,7 +34,7 @@ var Scene = function(gl, output) {
 
   this.lightSources = new LightSource(1);
   this.lightSources.setAmbientLight(new Vec3(0.2, 0.2, 0.2));
-  this.lightSources.setDirectionalLight(0, (new Vec3(5,5,5)), new Vec3(0.7, 0.7, 0.7));
+  this.lightSources.setPointLight(0, (new Vec3(5,5,5)), (new Vec3(0.7, 0.7, 0.7)).mul(10));
 };
 
 Scene.prototype.update = function(gl, keysPressed) {

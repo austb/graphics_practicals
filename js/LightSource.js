@@ -6,7 +6,7 @@ var LightSource = function(size) {
 };
 
 LightSource.prototype.setPointLight = function(index, position, powerDensity) {
-  this.lightPositionOrDirection[index].set(new Vec4(direction, 1));
+  this.lightPositionOrDirection[index].set(new Vec4(position, 1));
 
   if(powerDensity) {
     this.lightPowerDensity[index].set(new Vec4(powerDensity, 1));
