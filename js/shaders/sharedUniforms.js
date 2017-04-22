@@ -6,7 +6,7 @@ Material.shared = {
   uAlpha: new Vec1(),
   uCameraPos: new Vec3(),
   rayDirMatrix : false,
-  lightPos: false,
-  lightPowerDensity: false,
+  lightPos: new Vec4Array(10),
+  lightPowerDensity: new Vec4Array(10),
   uAmbientLight: new Vec3(),
 };

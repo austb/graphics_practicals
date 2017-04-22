@@ -12,16 +12,21 @@ var Scene = function(gl, output) {
   // Load shaders and construct the program
   var vertexShader = new Shader(gl, gl.VERTEX_SHADER, "solid_vs.essl");
   var fragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
-  var program = new Program(gl, vertexShader, fragmentShader);
+  var envFragmentShader = new Shader(gl, gl.FRAGMENT_SHADER, "envmap_fs.essl");
+  var program = new Program(gl, vertexShader, envFragmentShader);
 
   // Create a material from the program and a texture
   var material1 = new Material(gl, program);
-  material1.colorTexture.set(
-    new Texture2D(gl, 'js/models/slowpoke/YadonDh.png'));
+  // material2.colorTexture.set(
+  //   new Texture2D(gl, 'js/models/slowpoke/YadonDh.png'));
+  material1.probeTexture.set(
+    new Texture2D(gl, 'img/pp.png'));
 
   var material2 = new Material(gl, program);
-  material2.colorTexture.set(
-    new Texture2D(gl, 'js/models/slowpoke/YadonEyeDh.png'));
+  // material2.colorTexture.set(
+  //   new Texture2D(gl, 'js/models/slowpoke/YadonEyeDh.png'));
+  material2.probeTexture.set(
+    new Texture2D(gl, 'img/pp.png'));
 
   this.multimesh = new MultiMesh(gl, 'js/models/slowpoke/Slowpoke.json', [material1, material2]);
   this.gameObj = new AnimatedGameObject2D(this.multimesh, {spriteDimensions: {x: 1, y: 1}});
@@ -47,10 +52,6 @@ Scene.prototype.update = function(gl, keysPressed) {
   // clear the screen
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  gl.enable(gl.BLEND);
-  gl.blendFunc(
-    gl.SRC_ALPHA,
-    gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.DEPTH_TEST);
 
   // dt
