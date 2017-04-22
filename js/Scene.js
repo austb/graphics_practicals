@@ -84,6 +84,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   Material.shared.uCameraPos.set(this.camera.position);
   this.gameObj.updateModelTransformation();
+  this.gameObj.setTextureMat4();
   this.gameObj.draw(this.camera, this.lightSources);
 
   // this.drawObjects();
