@@ -108,7 +108,6 @@ var PhysicsObject = (function() {
   PhysicsObject.prototype.apply = function() {
     // Update the game object properties for drawing
     this.gameObject.position.set(this.position);
-    this.gameObject.orientation = this.orientation;
   };
 
 

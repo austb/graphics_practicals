@@ -2,18 +2,23 @@ var GameObject2D = function(mesh) {
   this.mesh = mesh;
 
   this.position = new Vec3(0, 0, 0);
-  this.orientation = 0;
+  this.orientation = new Vec3(0, 0, 0);
   this.scale = new Vec3(1, 1, 1);
 
   this.modelMatrix = new Mat4();
   this.updateModelTransformation();
 };
 
+var unitVecX = new Vec3(1, 0, 0);
+var unitVecY = new Vec3(0, 1, 0);
+var unitVecZ = new Vec3(0, 0, 1);
 GameObject2D.prototype.updateModelTransformation =
                               function(){
   this.modelMatrix.set().
     scale(this.scale).
-    rotate(this.orientation).
+    rotate(this.orientation.x, unitVecX).
+    rotate(this.orientation.y, unitVecY).
+    rotate(this.orientation.z, unitVecZ).
     translate(this.position);
 
 };
@@ -29,13 +34,6 @@ GameObject2D.prototype.draw = function(camera, lightSource){
     Material.shared.modelViewProjMatrix.set().
       mul(this.modelMatrix).
       mul(camera.viewProjMatrix);
-  }
-
-  Material.shared.uAmbientLight.set(lightSource.ambientLight);
-
-  for(var i = 0; i < lightSource.length; i++) {
-    Material.shared.lightPos[i].set(lightSource.lightPositionOrDirection[i]);
-    Material.shared.lightPowerDensity[i].set(lightSource.lightPowerDensity[i]);
   }
 
   this.mesh.draw();

@@ -5,6 +5,16 @@ var LightSource = function(size) {
   this.length = size;
 };
 
+LightSource.prototype.updateUniforms = function() {
+  Material.shared.uAmbientLight.set(this.ambientLight);
+
+  for(var i = 0; i < this.length; i++) {
+    Material.shared.lightPos[i].set(this.lightPositionOrDirection[i]);
+    Material.shared.lightPowerDensity[i].set(this.lightPowerDensity[i]);
+  }
+};
+
+
 LightSource.prototype.setPointLight = function(index, position, powerDensity) {
   this.lightPositionOrDirection[index].set(new Vec4(position, 1));
 

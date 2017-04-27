@@ -34,7 +34,6 @@ PerspectiveCamera.prototype.updateViewMatrix = function(){
     0  , 0  , 0   , 1).translate(this.position).invert();
   
   this.viewProjMatrix.set(this.viewMatrix).mul(this.projMatrix); 
-   
 }; 
 
 PerspectiveCamera.prototype.updateProjMatrix = function(){ 
@@ -50,6 +49,11 @@ PerspectiveCamera.prototype.updateProjMatrix = function(){
   this.viewProjMatrix.set(this.viewMatrix).
                       mul(this.projMatrix); 
 }; 
+
+PerspectiveCamera.prototype.updateUniforms = function() {
+  Material.shared.uCameraPos.set(this.position);
+  Material.shared.rayDirMatrix.set((new Mat4()).translate(this.position).mul(this.viewProjMatrix).invert());
+};
 
 
 PerspectiveCamera.prototype.move = function(dt, keysPressed) { 
@@ -97,6 +101,18 @@ PerspectiveCamera.prototype.move = function(dt, keysPressed) {
 
   this.updateViewMatrix(); 
 }; 
+
+PerspectiveCamera.prototype.lookAt = function(obj) {
+  this.position = obj.position.plus(0, 8, -15);
+
+  this.ahead = obj.position.minus(this.position).normalize();
+  this.right.setVectorProduct(
+    this.ahead,
+    PerspectiveCamera.worldUp ); 
+  this.right.normalize(); 
+  this.up.setVectorProduct(this.right, this.ahead); 
+  this.updateViewMatrix(); 
+};
 
 PerspectiveCamera.prototype.mouseDown = function() { 
   this.isDragging = true; 

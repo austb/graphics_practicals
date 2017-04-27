@@ -1,0 +1,17 @@
+shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
+  precision highp float;
+
+  uniform sampler2D probeTexture;
+  uniform vec3 uCameraPos;
+
+  varying vec3 rayDir;
+  varying vec3 screenPos;
+
+  void main(void) {
+
+    //find corresponding point in light probe
+    vec2 probeTex = (normalize(vec3(0, 0, 1) + normalize(rayDir)).xy / vec2(2, -2)) + vec2(0.5, 0.5);
+    gl_FragColor = vec4(screenPos, 1.0);
+    gl_FragColor = texture2D( probeTexture, probeTex);
+  }
+`;
