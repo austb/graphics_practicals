@@ -2,6 +2,7 @@ Material.shared = {
   modelMatrix : new Mat4(),
   modelMatrixInverse : new Mat4(),
   modelViewProjMatrix : new Mat4(),
+  viewProjMatrix: new Mat4(),
   rayDirMatrix : new Mat4(),
   textureProjMatrix : new Mat4(),
   uAlpha: new Vec1(),
@@ -9,4 +10,5 @@ Material.shared = {
   lightPos: new Vec4Array(10),
   lightPowerDensity: new Vec4Array(10),
   uAmbientLight: new Vec3(),
+  uRenderShadow: new Vec1(),
 };

@@ -6,30 +6,28 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   uniform mat4 modelViewProjMatrix;
   uniform mat4 modelMatrix;
   uniform mat4 modelMatrixInverse;
+  uniform mat4 viewProjMatrix;
 
   // Light
   uniform vec4 lightPos[10]; // xyz is the direction, w is 0
-  uniform float uRenderAsShadow;
-
-  uniform mat4 rayDirMatrix;
-  varying vec3 rayDir;
-  varying vec3 screenPos;
 
   varying vec2 texCoord;
   varying vec3 worldPos;
   varying vec3 worldNormal;
 
   void main(void) {
-    vec4 homogenous_pos = vec4(vertexPosition, 1.0);
+    vec4 homogenous_pos;
+    if(vertexPosition.x == -1.0 && vertexPosition.z == -1.0) {
+      homogenous_pos = vec4(vertexPosition, 1.0);
+    } else {
+      homogenous_pos = vec4(vertexPosition, 0.0);
+    }
 
-    gl_Position = homogenous_pos;
+    gl_Position = homogenous_pos * viewProjMatrix;
 
     texCoord = vertexTexCoord;
     worldPos = (homogenous_pos * modelMatrix).xyz;
     worldNormal = (modelMatrixInverse * vec4(vertexNormal, 0)).xyz;
-
-    rayDir = (homogenous_pos * rayDirMatrix).xyz;
-    screenPos = homogenous_pos.xyz;
   }
 
 `;

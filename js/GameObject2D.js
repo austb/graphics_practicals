@@ -14,27 +14,51 @@ var unitVecY = new Vec3(0, 1, 0);
 var unitVecZ = new Vec3(0, 0, 1);
 GameObject2D.prototype.updateModelTransformation =
                               function(){
-  this.modelMatrix.set().
-    scale(this.scale).
-    rotate(this.orientation.x, unitVecX).
-    rotate(this.orientation.y, unitVecY).
-    rotate(this.orientation.z, unitVecZ).
-    translate(this.position);
-
+    this.modelMatrix.set().
+      scale(this.scale).
+      rotate(this.orientation.x, unitVecX).
+      rotate(this.orientation.y, unitVecY).
+      rotate(this.orientation.z, unitVecZ).
+      translate(this.position);
 };
 
-GameObject2D.prototype.draw = function(camera, lightSource){
+GameObject2D.prototype.drawAsShadow = function(cam, ls){
+  var d = ls.getLightDirection(0);
 
-  if(this.parent) {
-    Material.shared.modelViewProjMatrix.set().
-      mul(this.modelMatrix).
-      mul(this.parent.modelMatrix).
-      mul(camera.viewProjMatrix);
-  } else {
-    Material.shared.modelViewProjMatrix.set().
-      mul(this.modelMatrix).
-      mul(camera.viewProjMatrix);
+  var shadowProjMatrix = new Mat4();
+  shadowProjMatrix.set(
+      1, 0, 0, 0,
+      -d.x / d.y , 0, -d.z / d.y, 0,
+      0, 0, 1, 0,
+      0, 0.1, 0, 1
+    );
+
+  this.setMVP(cam, this.parent, shadowProjMatrix);
+
+  this.mesh.draw();
+};
+
+GameObject2D.prototype.setMVP = function(camera, parent, shadowProjMatrix) {
+  if(!parent) {
+    parent = {
+      modelMatrix: new Mat4()
+    };
   }
+
+  if(!shadowProjMatrix) {
+    shadowProjMatrix = new Mat4();
+  }
+
+  Material.shared.modelViewProjMatrix.set().
+    mul(this.modelMatrix).
+    mul(parent.modelMatrix).
+    mul(shadowProjMatrix).
+    mul(camera.viewProjMatrix);
+};
+
+
+GameObject2D.prototype.draw = function(camera, lightSource){
+  this.setMVP(camera, this.parent);
 
   this.mesh.draw();
 };

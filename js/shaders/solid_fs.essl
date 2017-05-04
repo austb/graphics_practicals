@@ -12,7 +12,7 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   uniform vec3 uAmbientLight;
   uniform vec3 uMaterialShinyColor;
   uniform highp float uShinyFactor;
-  uniform float uRenderAsShadow;
+  uniform float uRenderShadow;
 
   varying vec2 texCoord;
   varying vec3 worldPos;
@@ -20,7 +20,7 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
 
   void main(void) {
 
-    if(uRenderAsShadow != 0.0) {
+    if(uRenderShadow == 1.0) {
       gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
       vec3 diffuseComponent;

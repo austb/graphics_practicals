@@ -50,7 +50,7 @@ var AnimatedGameObject2D = (function() {
   };
   AnimatedGameObject2D.prototype.resetPosition = function() {
     this.position = new Vec3(0, 0, 0);
-    this.orientation = 0;
+    this.orientation = new Vec3(0, 0, 0);
   };
 
   AnimatedGameObject2D.prototype.changeSprite = function() {

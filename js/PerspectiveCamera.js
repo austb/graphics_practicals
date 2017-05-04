@@ -53,6 +53,7 @@ PerspectiveCamera.prototype.updateProjMatrix = function(){
 PerspectiveCamera.prototype.updateUniforms = function() {
   Material.shared.uCameraPos.set(this.position);
   Material.shared.rayDirMatrix.set((new Mat4()).translate(this.position).mul(this.viewProjMatrix).invert());
+  Material.shared.viewProjMatrix.set(this.viewProjMatrix);
 };
 
 
@@ -102,8 +103,9 @@ PerspectiveCamera.prototype.move = function(dt, keysPressed) {
   this.updateViewMatrix(); 
 }; 
 
-PerspectiveCamera.prototype.lookAt = function(obj) {
-  this.position = obj.position.plus(0, 8, -15);
+PerspectiveCamera.prototype.lookAt = function(obj, ahead) {
+  this.position = obj.position.plus(ahead.x * -15, 4, -ahead.z * 15);
+  // this.position = obj.position.plus(0, 8, -15);
 
   this.ahead = obj.position.minus(this.position).normalize();
   this.right.setVectorProduct(

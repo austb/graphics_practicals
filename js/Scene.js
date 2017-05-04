@@ -49,13 +49,12 @@ var Scene = function(gl, output) {
   rotorMaterial.uShinyFactor.set(
     new Vec1(10.0));
 
+  // var groundVS = new Shader(gl, gl.VERTEX_SHADER, "ground_vs.essl");
   var groundFS = new Shader(gl, gl.FRAGMENT_SHADER, "procedural_fs.essl");
   var procdGroundProg = new Program(gl, vertexShader, groundFS);
   var groundMat = new Material(gl, procdGroundProg);
-  groundMat.rotateMat.set(
-    (new Mat4()).rotate(25, new Vec3(1, 0, 0)));
   groundMat.uMaterialShinyColor.set(
-    new Vec3(3, 3, 3));
+    new Vec3(1, 1, 1));
   groundMat.uShinyFactor.set(
     new Vec1(30));
 
@@ -67,34 +66,83 @@ var Scene = function(gl, output) {
 
   var envMat = new Material(gl, envQuadProg);
   envMat.probeTexture.set(
-    new Texture2D(gl, 'img/pp.png'));
+    new Texture2D(gl, 'img/reflection.jpg'));
+  envMat.grassTexture.set(
+    new Texture2D(gl, 'img/grass_texture.jpg'));
 
   this.environment = new AnimatedGameObject2D(
     new MultiMesh(gl, 'js/models/envquad.json', [envMat]),
     {spriteDimensions: {x: 1, y: 1}});
   this.environment.disableAllEnvironmentForces();
 
-  // this.multimesh = new MultiMesh(gl, 'js/models/slowpoke/Slowpoke.json', [material1, material2]);
+  var envMapProg = new Program(gl, vertexShader, envFragmentShader);
+  var envMapMat = new Material(gl, envMapProg);
+  envMapMat.probeTexture.set(
+    new Texture2D(gl, 'img/reflection.jpg'));
+  envMapMat.uProceduralNormal.set(0.0);
+
+  var bumpyEnvMapMat = new Material(gl, envMapProg);
+  bumpyEnvMapMat.probeTexture.set(
+    new Texture2D(gl, 'img/reflection.jpg'));
+  bumpyEnvMapMat.uProceduralNormal.set(1.0);
+  var treeMesh = new MultiMesh(gl, 'js/models/tree.json', [envMapMat]);
+  var balloonMesh = new MultiMesh(gl, 'js/models/balloon.json', [bumpyEnvMapMat]);
+
+  var makeTree = function(gameObjects, pos) {
+    var tree = new AnimatedGameObject2D(
+      treeMesh,
+      {spriteDimensions: {x: 1, y: 1}});
+    tree.disableAllEnvironmentForces();
+    tree.scale = 0.5;
+    tree.physics.position.set(pos);
+
+    gameObjects.push(tree);
+  };
+
+  var makeLightPost = function(gameObjects, ls, pos, i) {
+    var post = new AnimatedGameObject2D(
+      balloonMesh,
+      {spriteDimensions: {x: 1, y: 1}});
+    post.disableAllEnvironmentForces();
+    post.scale = 0.5;
+    post.physics.position.set(pos);
+
+    gameObjects.push(post);
+
+    ls.setPointLight(i, pos, (new Vec3(0.7, 0.7, 0.7)).mul(400));
+  };
+
   this.multimesh = new MultiMesh(gl, 'js/models/heli/heli1.json', [material2]);
   this.gameObj = new AnimatedGameObject2D(this.multimesh, {spriteDimensions: {x: 1, y: 1}});
   this.gameObj.scale = 0.1;
 
   this.gameObj.keyActions = function(obj, keysPressed, dt, scene) {
-    if(keysPressed.W) {
-      obj.physics.applyCenterOfMassForce(new Vec3(0, 0, obj.physics.mass * 20));
+    var mass = obj.physics.mass;
+    var ahead = new Vec3(0, 0, 1);
+    if(obj.ahead) {
+      ahead.set(obj.ahead);
     }
-    if(keysPressed.S) {
-      obj.physics.applyCenterOfMassForce(new Vec3(0, 0, obj.physics.mass * -20));
+
+    ahead.normalize();
+
+    var right =
+      ahead.cross(PerspectiveCamera.worldUp );
+    right.normalize();
+    var up = right.cross(ahead); 
+
+
+    if(keysPressed.W) {
+      obj.physics.applyCenterOfMassForce(ahead.mul(60 * mass));
     }
     if(keysPressed.D) {
-      obj.physics.applyCenterOfMassForce(new Vec3(obj.physics.mass * -20, 0, 0));
-    }
-    if(keysPressed.A) {
-      obj.physics.applyCenterOfMassForce(new Vec3(obj.physics.mass * 20, 0, 0));
+      obj.physics.applyCenterOfMassForce(right.mul(20 * mass));
+    } else if(keysPressed.A) {
+      obj.physics.applyCenterOfMassForce(right.mul(-20 * mass));
     }
     if(keysPressed.SPACE) {
-      obj.physics.applyCenterOfMassForce(new Vec3(0, obj.physics.mass * 30, 0));
+      obj.physics.applyCenterOfMassForce(up.mul(30 * mass));
     }
+
   };
 
   this.topRotor = new AnimatedGameObject2D(
@@ -122,13 +170,31 @@ var Scene = function(gl, output) {
   this.gameObjects.push(this.topRotor);
   this.gameObjects.push(this.tailRotor);
 
-  this.lightSources = new LightSource(2);
-  this.lightSources.setAmbientLight(new Vec3(0.2, 0.2, 0.2));
-  this.lightSources.setDirectionalLight(0, new Vec3(5, 5, 5), new Vec3(0.4, 0.4, 0.4));
-  this.lightSources.setPointLight(1, (new Vec3(50, 50, 0)), (new Vec3(0.7, 0.7, 0.7)).mul(4000));
+  this.shadowObjects = [];
+  this.shadowObjects.push(this.gameObj);
+  this.shadowObjects.push(this.topRotor);
+  this.shadowObjects.push(this.tailRotor);
+
+  this.lightSources = new LightSource(8);
+  this.lightSources.setAmbientLight(new Vec3(0.1, 0.1, 0.1));
+  this.lightSources.setDirectionalLight(0, new Vec3(0, 5, 5), new Vec3(0.7, 0.7, 0.7));
+
+  for(var i = 1; i < 8; i++) {
+    var x = (Math.random() - 0.5) * 600;
+    var z = (Math.random() - 0.5) * 600;
+    makeLightPost(this.gameObjects, this.lightSources, new Vec3(x, 9, z), i);
+  }
+
+  for(i = 0; i < 30; i++) {
+    var x = (Math.random() - 0.5) * 600;
+    var z = (Math.random() - 0.5) * 600;
+    makeTree(this.gameObjects, new Vec3(x, 1, z));
+  }
+
 
   this.physicsWorld = new PhysicsWorld(this);
   this.physicsWorld.initialize();
+
 };
 
 Scene.prototype.update = function(gl, keysPressed) {
@@ -165,14 +231,35 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.topRotor.orientation.addScaled(dt, new Vec3(0, 20, 0));
   this.tailRotor.orientation.addScaled(dt, new Vec3(20, 0, 0));
 
-  // this.camera.lookAt(this.gameObj);
-  this.camera.move(dt, keysPressed);
+  var xzVelNorm = new Vec3(this.gameObj.physics.velocity);
+  xzVelNorm.y = 0;
+  if(xzVelNorm.length() === 0) {
+    xzVelNorm.x = 1;
+  } else {
+    xzVelNorm.normalize();
+  }
+  this.camera.lookAt(this.gameObj, xzVelNorm);
+  // this.camera.move(dt, keysPressed);
+  // this.gameObj.ahead = new Vec3(this.gameObj.physics.velocity).normalize();
+  angle = Math.atan(xzVelNorm.x / xzVelNorm.z);
+  if(xzVelNorm.z < 0) {
+    angle += Math.PI;
+  }
+  this.gameObj.orientation.y = angle;
+  this.gameObj.ahead = xzVelNorm;
+
+  if(this.gameObj.position.y < 0) {
+    this.gameObj.physics.position.y = 0;
+  }
 
   this.drawObjects();
+
+  // Draw shadows
+  this.drawObjects(null, null, true);
 };
 
 
-Scene.prototype.drawObjects = function(cam, lightSources) {
+Scene.prototype.drawObjects = function(cam, lightSources, drawShadows) {
   if(!cam) {
     cam = this.camera;
   }
@@ -186,11 +273,27 @@ Scene.prototype.drawObjects = function(cam, lightSources) {
 
   lightSources.updateUniforms();
 
-  for(i = 0; i < this.gameObjects.length; i++) {
-    obj = this.gameObjects[i];
+  if(drawShadows) {
+    Material.shared.uRenderShadow.set(1.0);
 
-    obj.updateModelTransformation();
-    obj.setTextureMat4();
-    obj.draw(cam, lightSources);
+    for(i = 0; i < this.shadowObjects.length; i++) {
+      obj = this.shadowObjects[i];
+
+      obj.updateModelTransformation();
+      obj.setTextureMat4();
+
+      obj.drawAsShadow(cam, lightSources);
+    }
+  } else {
+    Material.shared.uRenderShadow.set(0.0);
+
+    for(i = 0; i < this.gameObjects.length; i++) {
+      obj = this.gameObjects[i];
+
+      obj.updateModelTransformation();
+      obj.setTextureMat4();
+
+      obj.draw(cam, lightSources);
+    }
   }
 };

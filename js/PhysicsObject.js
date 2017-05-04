@@ -3,7 +3,7 @@ var PhysicsObject = (function() {
   var MASS = 100.0;
   var VELOCITY = new Vec3(0.0, 0.0, 0.0);
   var POSITION = new Vec3(0.0, 0.0, 0.0);
-  var ORIENTATION = 0.0;
+  var ORIENTATION = new Vec3(0.0, 0.0, 0.0);
   var ANGULAR_VELOCITY = new Vec3(0.0, 0.0, 0.0);
   var RADIUS = 3.0;
 
@@ -33,7 +33,7 @@ var PhysicsObject = (function() {
     this.velocity = values.velocity || new Vec3(VELOCITY);
     this.mass = values.mass || MASS;
 
-    this.orientation = values.orientation || ORIENTATION;
+    this.orientation = values.orientation || new Vec3(ORIENTATION);
     this.angularVelocity = values.angularVelocity || new Vec3(ANGULAR_VELOCITY);
     this.radius = values.radius || RADIUS;
 
@@ -87,7 +87,7 @@ var PhysicsObject = (function() {
   PhysicsObject.prototype.torqueMotion = function(dt) {
     this.angularVelocity.addScaled(dt, this.torqueForceThisFrame.div(this.opts.angularMass * this.mass));
 
-    this.orientation += this.angularVelocity.z * dt;
+    // this.orientation.y += this.angularVelocity.z * dt;
   };
 
   PhysicsObject.prototype.resetFrameForces = function() {
@@ -97,17 +97,19 @@ var PhysicsObject = (function() {
 
   PhysicsObject.prototype.move = function(dt) {
     this.centerOfMassMotion(dt);
-
     this.torqueMotion(dt);
 
-    this.apply();
+    this.orientation.set(new Vec3(this.velocity)).normalize();
 
+    this.apply();
     this.resetFrameForces();
   };
 
   PhysicsObject.prototype.apply = function() {
     // Update the game object properties for drawing
     this.gameObject.position.set(this.position);
+    // this.gameObject.orientation.set(new Vec3(0, 0, 1));
+    // this.gameObject.orientation.set(this.orientation);
   };
 
 
