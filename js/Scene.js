@@ -7,6 +7,8 @@ var Scene = function(gl, output) {
   var program = new Program(gl, vertexShader, fragmentShader);
 
   var mat = new Material(gl, program);
+  mat.environmentSphericalTexture.set(
+    new Texture2D(gl, 'img/reflection.jpg'));
 
   var sphere = new ClippedQuadric(mat, 0).
     makeCylinder(1, 5, new Vec3(-5, -16, -5)).

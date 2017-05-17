@@ -133,7 +133,7 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
         vec4 reflect_brdf;
         mat4 reflect_shape;
 
-        vec4 reflectingRay = vec4(reflect(viewDir, quadricNormal), 0.0);
+        vec4 reflectingRay = vec4(reflect(-viewDir, quadricNormal), 0.0);
         vec4 reflectPosition = vec4(worldPos + (0.01 * quadricNormal), 1.0);
         for(int i = 0; i < 10; i++) {
           if (findBestHit(reflectPosition, reflectingRay, reflect_t, reflect_brdf, reflect_shape)) {
@@ -145,19 +145,20 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
               reflectionColor += (vec3(1.0, 0.0, 0.0) * contrib);
 
               // Set up next step
-              contrib *= reflect_brdf.rbg;
+              contrib *= reflect_brdf.rgb;
               reflectingRay = vec4(reflect(reflectingRay.xyz, reflectedNormal), 0.0);
               reflectPosition = vec4(reflectedWorldPos + (0.01 * reflectedNormal), 1.0);
 
               break;
             } else {
-              // TODO: Phong-Blinn shading in mirror?
-              reflectionColor += (reflect_brdf.rbg * contrib);
+              // TODO: Phong-Blinn/shadow shading in mirror?
+              reflectionColor += (reflect_brdf.rgb * contrib);
               break;
             }
 
           } else {
-            reflectionColor += (vec3(0.0, 1.0, 1.0) * contrib);
+            vec2 probeTex = (normalize(vec3(0, 0, 1) + normalize(reflectingRay.xyz)).xy / vec2(2, -2)) + vec2(0.5, 0.5);
+            reflectionColor += (texture2D(environmentSphericalTexture, probeTex).rgb * contrib);
             break;
           }
         }
@@ -193,7 +194,8 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
         gl_FragColor = vec4(brdf.rgb * diffuseComponent + shinyComponent, 1.0);
       }
     } else {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      vec2 probeTex = (normalize(vec3(0, 0, 1) + normalize(rayDir)).xy / vec2(2, -2)) + vec2(0.5, 0.5);
+      gl_FragColor = texture2D(environmentSphericalTexture, probeTex);
     }
   }
 `;
