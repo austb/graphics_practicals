@@ -1,13 +1,10 @@
 var LightSource = function(size) {
   this.lightPowerDensity = new Vec4Array(size);
   this.lightPositionOrDirection = new Vec4Array(size);
-  this.ambientLight = new Vec3();
   this.length = size;
 };
 
 LightSource.prototype.updateUniforms = function() {
-  Material.shared.uAmbientLight.set(this.ambientLight);
-
   for(var i = 0; i < this.length; i++) {
     Material.shared.lightPos[i].set(this.lightPositionOrDirection[i]);
     Material.shared.lightPowerDensity[i].set(this.lightPowerDensity[i]);
@@ -37,7 +34,3 @@ var positionOrDirectionFn = function(index) {
 };
 LightSource.prototype.getLightDirection = positionOrDirectionFn;
 LightSource.prototype.getLightPosition = positionOrDirectionFn;
-
-LightSource.prototype.setAmbientLight = function(vec3) {
-  this.ambientLight.set(vec3);
-};

@@ -60,6 +60,9 @@ GameObject2D.prototype.setMVP = function(camera, parent, shadowProjMatrix) {
 GameObject2D.prototype.draw = function(camera, lightSource){
   this.setMVP(camera, this.parent);
 
+  Material.shared.modelMatrix.set(this.modelMatrix);
+  Material.shared.modelMatrixInverse.set(new Mat4(this.modelMatrix).invert());
+
   this.mesh.draw();
 };
 
