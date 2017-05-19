@@ -2,10 +2,14 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   precision highp float;
 
   uniform sampler2D environmentSphericalTexture;
+  uniform sampler2D sandTexture;
+  uniform sampler2D woodTexture;
 
   uniform vec3 uCameraPos;
   uniform mat4 quadrics[32];
   uniform vec4 brdfs[16];
+  uniform mat4 double_quadrics[18];
+  uniform vec4 double_brdfs[6];
 
   // Light
   uniform vec4 lightPos[2]; // xyz is the direction, w is 0
@@ -73,6 +77,34 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
     return t;
   }
 
+  highp float intersectDoubleClippedQuadric(mat4 quadric, mat4 clipShape, mat4 clipShape2, vec4 rayOrigin, vec4 rayDirection) {
+    vec2 tVals = calculatePossibleIntersectionPoints(quadric, rayOrigin, rayDirection);
+
+    highp float t1, t2;
+    t1 = tVals.x;
+    t2 = tVals.y;
+
+    highp vec4 r = rayOrigin + rayDirection * t1;
+    highp float hit11 = dot(r * clipShape, r);
+    highp float hit12 = dot(r * clipShape2, r);
+    if(hit11 < 0.0 || hit12 < 0.0) {
+      t1 = -1.0;
+    }
+
+    r = rayOrigin + rayDirection * t2;
+    highp float hit21 = dot(r * clipShape, r);
+    highp float hit22 = dot(r * clipShape2, r);
+    if(hit21 < 0.0 || hit22 < 0.0) {
+      t2 = -1.0;
+    }
+
+    highp float t = min(t1, t2);
+    if(t < 0.0) {
+      return max(t1, t2);
+    }
+    return t;
+  }
+
   vec3 computeQuadricNormal(mat4 quadric, vec4 rayToQuadSurface) {
     return normalize((quadric * rayToQuadSurface + rayToQuadSurface * quadric).xyz);
   }
@@ -108,7 +140,100 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
       }
     }
 
+    for(int i = 0; i < 6; i++) {
+      newT = intersectDoubleClippedQuadric(double_quadrics[3 * i], double_quadrics[3 * i + 1], double_quadrics[3 * i + 2], rayOrigin, rayDirection);
+
+      if(newT > 0.0 && (newT < bestT || bestT < 0.0)) {
+        bestT = newT;
+        bestBRDF = double_brdfs[i];
+        bestA = double_quadrics[3 * i];
+
+        isIntersection = true;
+      }
+    }
+
     return isIntersection;
+  }
+
+  vec3 findColorOfQuadricAtPosition(vec3 viewDir, vec3 worldPos, vec3 quadricNormal, vec4 brdf) {
+    vec3 diffuseComponent;
+    vec3 shinyComponent;
+
+    for(int i = 0; i < 2; i++) {
+      vec3 lightDirection = lightPos[i].xyz - (worldPos * lightPos[i].w);
+
+      highp float shadow_t;
+      vec4 shadow_brdf;
+      mat4 shadow_shape;
+      if(findBestHit(vec4(worldPos + (0.01 * quadricNormal), 1.0),
+                     vec4(normalize(lightDirection), 0.0),
+                     shadow_t, shadow_brdf, shadow_shape)) continue;
+
+      highp float powerMagnitude = 1.0 / dot(lightDirection, lightDirection);
+      vec3 powerMag = lightPowerDensity[i].xyz * powerMagnitude;
+
+      highp float directionalComponent = max(dot(normalize(lightDirection), quadricNormal), 0.0);
+      diffuseComponent += powerMag * directionalComponent;
+
+      if(brdf.a > 0.0 && brdf.a < 200.0) {
+        vec3 halfway = normalize(viewDir + normalize(lightDirection));
+        shinyComponent += powerMag * vec3(1.0, 1.0, 1.0) * pow(max(dot(quadricNormal, halfway), 0.0), brdf.a);
+      }
+    }
+
+    vec3 surfaceColor;
+    if(brdf.a > 300.0) {
+      vec2 texCoords;
+      if(brdf.y > 2.0) {
+        texCoords = worldPos.xy;
+      } else if(brdf.y > 1.0) {
+        texCoords = worldPos.yz;
+      } else if(brdf.y > 0.0) {
+        texCoords = worldPos.xz;
+      }
+
+      if(brdf.x > 0.0 && brdf.x < 2.0) {
+        surfaceColor = texture2D(sandTexture, texCoords).rgb;
+      } else if(brdf.x > 1.0 && brdf.x < 3.0) {
+
+        surfaceColor = texture2D(woodTexture, texCoords).rgb;
+      }
+    } else if(brdf.a < 200.0 && brdf.r > 500.0) {
+      if(quadricNormal.x > 0.0) {
+        if(quadricNormal.z > 0.0) {
+          if(quadricNormal.x > quadricNormal.z) {
+            surfaceColor = vec3(1.0, 0.0, 0.0);
+          } else {
+            surfaceColor = vec3(0.0, 1.0, 0.0);
+          }
+        } else {
+          if(quadricNormal.x > -quadricNormal.z) {
+            surfaceColor = vec3(0.0, 0.0, 1.0);
+          } else {
+            surfaceColor = vec3(1.0, 1.0, 0.0);
+          }
+        }
+      } else {
+        if(quadricNormal.z > 0.0) {
+          if(-quadricNormal.x > quadricNormal.z) {
+            surfaceColor = vec3(1.0, 0.0, 0.0);
+          } else {
+            surfaceColor = vec3(1.0, 1.0, 0.0);
+          }
+        } else {
+          if(-quadricNormal.x > -quadricNormal.z) {
+            surfaceColor = vec3(0.0, 0.0, 1.0);
+          } else {
+            surfaceColor = vec3(0.0, 1.0, 0.0);
+          }
+        }
+      }
+
+    } else {
+      surfaceColor = brdf.rgb;
+    }
+
+    return (surfaceColor * diffuseComponent) + shinyComponent;
   }
 
   void main(void) {
@@ -125,9 +250,9 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
       computeWorldPositionAndNormal(e, d, t, shape, worldPos, quadricNormal);
       vec3 viewDir = normalize(uCameraPos - worldPos);
 
-      if(brdf.a > 200.0) {
+      if(brdf.a > 200.0 && brdf.a < 300.0) {
         vec3 reflectionColor;
-        vec3 contrib = vec3(1.0, 1.0, 1.0);
+        vec3 contrib = brdf.rgb;
 
         highp float reflect_t;
         vec4 reflect_brdf;
@@ -137,12 +262,13 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
         vec4 reflectPosition = vec4(worldPos + (0.01 * quadricNormal), 1.0);
         for(int i = 0; i < 10; i++) {
           if (findBestHit(reflectPosition, reflectingRay, reflect_t, reflect_brdf, reflect_shape)) {
-            if(reflect_brdf.a > 200.0) {
-              vec3 reflectedWorldPos;
-              vec3 reflectedNormal;
-              computeWorldPositionAndNormal(reflectPosition, reflectingRay, reflect_t, reflect_shape, reflectedWorldPos, reflectedNormal);
+            vec3 reflectedWorldPos;
+            vec3 reflectedNormal;
+            computeWorldPositionAndNormal(reflectPosition, reflectingRay, reflect_t, reflect_shape, reflectedWorldPos, reflectedNormal);
 
-              reflectionColor += (vec3(1.0, 0.0, 0.0) * contrib);
+            if(reflect_brdf.a > 200.0 && reflect_brdf.a < 300.0) {
+
+              reflectionColor += (reflect_brdf.rgb * contrib);
 
               // Set up next step
               contrib *= reflect_brdf.rgb;
@@ -151,8 +277,8 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
 
               break;
             } else {
-              // TODO: Phong-Blinn/shadow shading in mirror?
-              reflectionColor += (reflect_brdf.rgb * contrib);
+              vec3 pointColor = findColorOfQuadricAtPosition(viewDir, reflectedWorldPos, reflectedNormal, reflect_brdf);
+              reflectionColor += (pointColor * contrib);
               break;
             }
 
@@ -165,33 +291,10 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
 
         gl_FragColor = vec4(reflectionColor, 1.0);
 
-      } else { 
-        vec3 diffuseComponent;
-        vec3 shinyComponent;
+      } else {
+        vec3 pointColor = findColorOfQuadricAtPosition(viewDir, worldPos, quadricNormal, brdf);
 
-        for(int i = 0; i < 2; i++) {
-          vec3 lightDirection = lightPos[i].xyz - (worldPos * lightPos[i].w);
-
-          highp float shadow_t;
-          vec4 shadow_brdf;
-          mat4 shadow_shape;
-          if(findBestHit(vec4(worldPos + (0.01 * quadricNormal), 1.0),
-                         vec4(normalize(lightDirection), 0.0),
-                         shadow_t, shadow_brdf, shadow_shape)) continue;
-
-          highp float powerMagnitude = 1.0 / dot(lightDirection, lightDirection);
-          vec3 powerMag = lightPowerDensity[i].xyz * powerMagnitude;
-
-          highp float directionalComponent = max(dot(normalize(lightDirection), quadricNormal), 0.0);
-          diffuseComponent += powerMag * directionalComponent;
-
-          if(brdf.a > 0.0 && brdf.a < 200.0) {
-            vec3 halfway = normalize(viewDir + normalize(lightDirection));
-            shinyComponent += powerMag * vec3(1.0, 1.0, 1.0) * pow(max(dot(quadricNormal, halfway), 0.0), brdf.a);
-          }
-        }
-
-        gl_FragColor = vec4(brdf.rgb * diffuseComponent + shinyComponent, 1.0);
+        gl_FragColor = vec4(pointColor, 1.0);
       }
     } else {
       vec2 probeTex = (normalize(vec3(0, 0, 1) + normalize(rayDir)).xy / vec2(2, -2)) + vec2(0.5, 0.5);

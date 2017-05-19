@@ -408,6 +408,33 @@ Mat4.prototype.invert = function() {
 };
 
 /**
+ * @method negate
+ * @memberof Mat4.prototype  
+ * @description Negates the matrix in place, overwriting the matrix with the results
+ * @return {Mat4} this
+ */
+Mat4.prototype.negate = function() {
+  this.storage[0] = -this.storage[0];
+  this.storage[1] = -this.storage[1];
+  this.storage[2] = -this.storage[2];
+  this.storage[3] = -this.storage[3];
+  this.storage[4] = -this.storage[4];
+  this.storage[5] = -this.storage[5];
+  this.storage[6] = -this.storage[6];
+  this.storage[7] = -this.storage[7];
+  this.storage[8] = -this.storage[8];
+  this.storage[9] = -this.storage[9];
+  this.storage[10] = -this.storage[10];
+  this.storage[11] = -this.storage[11];
+  this.storage[12] = -this.storage[12];
+  this.storage[13] = -this.storage[13];
+  this.storage[14] = -this.storage[14];
+  this.storage[15] = -this.storage[15];
+
+  return this;
+};
+
+/**
  * @method commit
  * @memberof Mat4.prototype  
  * @description Sets the value of the matrix to a WebGL mat4 uniform variable.
