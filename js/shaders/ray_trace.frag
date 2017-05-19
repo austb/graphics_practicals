@@ -233,7 +233,7 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
       surfaceColor = brdf.rgb;
     }
 
-    return (surfaceColor * diffuseComponent) + shinyComponent;
+    return (surfaceColor * (vec3(0.15, 0.15, 0.15) + diffuseComponent)) + shinyComponent;
   }
 
   void main(void) {
