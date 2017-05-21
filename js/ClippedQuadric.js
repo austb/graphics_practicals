@@ -256,6 +256,16 @@ ClippedQuadric.prototype.clipWithUnitSlab = function() {
   return this;
 };
 
+ClippedQuadric.prototype.clipWithUnitSlabZ = function() {
+  this.clipperCoeffMatrix.set(
+    0,  0, 0, 0,
+    0,  0, 0, 0,
+    0,  0, 1, 0,
+    0,  0, 0, -1);
+
+  return this;
+};
+
 ClippedQuadric.prototype.setScaleTogether = function(scale) {
   return this.setScaleSurface(scale).
               setScaleClipper(scale);
@@ -285,21 +295,38 @@ ClippedQuadric.prototype.setScaleClipper = function(scale) {
   return this;
 };
 
+ClippedQuadric.prototype.movePositionTogether = function(dist) {
+  return this.movePositionSurface(dist).
+              movePositionClipper(dist);
+};
+
+ClippedQuadric.prototype.movePositionSurface = function(dist) {
+  this.surfaceTranslation.position.add(dist);
+
+  return this;
+};
+
+ClippedQuadric.prototype.movePositionClipper = function(dist) {
+  this.clipperTranslation.position.add(dist);
+
+  return this;
+};
+
 ClippedQuadric.prototype.setPositionTogether = function(pos) {
   return this.setPositionSurface(pos).
               setPositionClipper(pos);
 };
 
 ClippedQuadric.prototype.setPositionSurface = function(pos) {
-  this.surfaceTranslation.position = pos;
+  this.surfaceTranslation.position.set(pos);
 
   return this;
 };
 
 ClippedQuadric.prototype.setPositionClipper = function(pos) {
-  this.clipperTranslation.position = pos;
+  this.clipperTranslation.position.set(pos);
 
-  if(this.isDoubleClipped) this.additionalClipperTranslation.position = pos;
+  if(this.isDoubleClipped) this.additionalClipperTranslation.position.set(pos);
 
   return this;
 };
@@ -356,8 +383,8 @@ ClippedQuadric.prototype.completeDoubleClippedSolid = function(quad1, quad2) {
   quad2.additionalClipperTranslation.rotationAxis.set(this.clipperTranslation.rotationAxis);
   quad2.additionalClipperTranslation.position.set(this.clipperTranslation.position);
 
-  this.brdf.y = 2;
   quad1.brdf.y = 1;
+  this.brdf.y  = 2;
   quad2.brdf.y = 3;
 
   this.commitUniforms();

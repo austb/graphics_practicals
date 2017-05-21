@@ -5,9 +5,11 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
   uniform sampler2D sandTexture;
   uniform sampler2D woodTexture;
 
+  uniform float uTime;
+
   uniform vec3 uCameraPos;
-  uniform mat4 quadrics[32];
-  uniform vec4 brdfs[16];
+  uniform mat4 quadrics[42];
+  uniform vec4 brdfs[21];
   uniform mat4 double_quadrics[18];
   uniform vec4 double_brdfs[6];
 
@@ -128,7 +130,7 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
     bool isIntersection = false;
     highp float newT;
 
-    for(int i = 0; i < 16; i++) {
+    for(int i = 0; i < 21; i++) {
       newT = intersectClippedQuadric(quadrics[2 * i], quadrics[2 * i + 1], rayOrigin, rayDirection);
 
       if(newT > 0.0 && (newT < bestT || bestT < 0.0)) {
@@ -236,6 +238,30 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
     return (surfaceColor * (vec3(0.15, 0.15, 0.15) + diffuseComponent)) + shinyComponent;
   }
 
+  float f(vec3 r) {
+    vec3 s = vec3(7502, 22777, 4767);
+    float w = 0.0;
+    for(int i=0; i<16; i++) {
+      w += sin( dot(s - vec3(32768, 32768, 32768),
+              r * 40.0) / 65536.0);
+      s = mod(s, 32768.0) * 2.0 + floor(s / 32768.0);
+    }
+    return w / 32.0 + 0.5;
+  }
+
+  vec3 fGrad(vec3 r) {
+    float scale = 8.0;
+    vec3 s = vec3(7502, 22777, 4767);
+    vec3 w = vec3(0.0, 0.0, 0.0);
+    for(int i=0; i<16; i++) {
+      w += cos( dot(s - vec3(32768, 32768, 32768),
+                r*scale) / 65536.0) 
+           * (s - vec3(32768, 32768, 32768)) * scale;
+      s = mod(s, 32768.0) * 2.0 + floor(s / 32768.0);
+    }
+    return w / 65536.0;
+  }
+
   void main(void) {
     vec4 e = vec4(uCameraPos, 1.0);
     vec4 d = vec4(normalize(rayDir), 0.0);
@@ -257,6 +283,11 @@ shaderSource[document.currentScript.src.split('js/shaders/')[1]] = `
         highp float reflect_t;
         vec4 reflect_brdf;
         mat4 reflect_shape;
+
+        if(brdf.a > 210.0) {
+          quadricNormal += vec3(0.002, 0.0, 0.0004) * fGrad(worldPos * vec3(1.0 + 0.01 * f(worldPos), 1.0, 1.0));
+        }
+        quadricNormal = normalize(quadricNormal);
 
         vec4 reflectingRay = vec4(reflect(-viewDir, quadricNormal), 0.0);
         vec4 reflectPosition = vec4(worldPos + (0.01 * quadricNormal), 1.0);
